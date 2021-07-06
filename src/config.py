@@ -19,7 +19,7 @@ LOGS = os.path.join(ROOT, 'local', 'logs')
 # NLM-Chem corpus (directory path) and subsets (file paths).
 #
 
-NLM_CHEM = os.path.join(ROOT, 'local', 'NLM-Chem')
+NLM_CHEM = os.path.join(ROOT, 'local', 'datasets', 'NLM-Chem')
 
 NLM_CHEM_TRN = os.path.join(NLM_CHEM, 'BC7T2-NLMChem-corpus-train.BioC.json')
 NLM_CHEM_DEV = os.path.join(NLM_CHEM, 'BC7T2-NLMChem-corpus-dev.BioC.json')
