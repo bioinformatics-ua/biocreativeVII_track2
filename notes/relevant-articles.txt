@@ -1,0 +1,13 @@
+[liu2021a] (October, 2020) #SapBERT
+Self-alignment pretraining for biomedical entity representations
+https://arxiv.org/abs/2010.11784
+
+
+[islamaj2021a] (March, 2021)
+NLM-Chem, a new resource for chemical entity recognition in PubMed full text literature
+https://doi.org/10.1038/s41597-021-00875-1
+
+
+[gu2020a] (July, 2020) #PubMedBERT
+Domain-specific language model pretraining for biomedical natural language processing
+https://arxiv.org/abs/2007.15779
