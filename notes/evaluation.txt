@@ -1,0 +1,17 @@
+Some important notes about the evaluation.
+
+
+- Regarding the first subtask (named entity recognition):
+    Only the SET of named entities is evaluated. Repeated named entities
+    are not taken into account. (A repeated named entity has the same
+    text, span, and type.)
+
+
+- Regarding the second subtask (normalization):
+    They only compare (evaluate) the SET of identifiers. Not the whole
+    list of identifiers.
+
+
+- Regarding the third subtask (indexing identifiers):
+    Repeated MeSH_Indexing_Chemical annotations do not have an impact.
+    Only the SET is evaluated.

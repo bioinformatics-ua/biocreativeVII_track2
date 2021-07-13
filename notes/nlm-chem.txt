@@ -1,0 +1,24 @@
+Some important notes about the NLM-Chem corpus.
+
+
+- A chemical can have multiple identifiers (for normalization).
+  Example: train subset, PMCID 5600090,
+           "MESH:C533766,MESH:D001897,MESH:D004952".
+
+
+- In the train subset there is an annotation thas has the wrong offset.
+  PMCID 5600090, offset 31358 should be 31359 ("text": "water").
+  This can be verified using the evaluation script:
+  $ python evaluate.py --reference_path BC7T2-NLMChem-corpus-train.BioC.json --prediction_path BC7T2-NLMChem-corpus-train.BioC.json --evaluation_type span --evaluation_method strict --annotation_type Chemical
+  It gives an error message (without stopping the program execution):
+    Annotation text 'water' does not match text at location(s) '\u2009wate' (...)
+
+
+- MeSH_Indexing_Chemical annotations only have one identifier per
+  annotation. This was checked inspecting the three subsets (train, dev,
+  and test). Regular expressions used:
+    To match annotations with a single identifier (correspond to all
+    cases):
+      "mesh:\w\d+",\n\s+"type": "MeSH_Indexing_Chemical"
+    Two match annotations with two identifiers (no case was found):
+      "mesh:\w\d+,\w+:\w\d+",\n\s+"type": "MeSH_Indexing_Chemical"
