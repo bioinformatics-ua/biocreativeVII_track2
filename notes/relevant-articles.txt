@@ -1,13 +1,24 @@
-[liu2021a] (October, 2020) #SapBERT
+[liu2021a] (October 2020) #SapBERT
 Self-alignment pretraining for biomedical entity representations
 https://arxiv.org/abs/2010.11784
+https://github.com/cambridgeltl/sapbert
 
 
-[islamaj2021a] (March, 2021)
+[islamaj2021a] (March 2021)
 NLM-Chem, a new resource for chemical entity recognition in PubMed full text literature
 https://doi.org/10.1038/s41597-021-00875-1
+https://ftp.ncbi.nlm.nih.gov/pub/lu/NLMChem/
 
 
-[gu2020a] (July, 2020) #PubMedBERT
+[gu2020a] (July 2020) #PubMedBERT
 Domain-specific language model pretraining for biomedical natural language processing
 https://arxiv.org/abs/2007.15779
+https://microsoft.github.io/BLURB/
+https://huggingface.co/microsoft/BiomedNLP-PubMedBERT-base-uncased-abstract
+https://huggingface.co/microsoft/BiomedNLP-PubMedBERT-base-uncased-abstract-fulltext
+
+
+[yang2018a] (July 2018) #NCRF++
+NCRF++: an open-source neural sequence labeling toolkit
+https://doi.org/10.18653/v1/P18-4013
+https://github.com/jiesutd/NCRFpp

@@ -7,6 +7,7 @@
 #   2021-07-07, 09:30
 #
 # Last updated:
+#   2021-07-12, 17:11
 #   2021-07-07, 10:05
 #   2021-07-07, 09:35
 #
@@ -22,9 +23,7 @@ sys.path.extend(['.', '..'])
 import json
 import os
 
-from config import NLM_CHEM_TRN
-from config import NLM_CHEM_DEV
-from config import NLM_CHEM_TST
+from config import NLM_CHEM_GROUPS
 
 
 #
@@ -34,9 +33,7 @@ from config import NLM_CHEM_TST
 WRITE_PRETTY_JSON = False
 # WRITE_PRETTY_JSON = True
 
-filepaths = [NLM_CHEM_TRN, NLM_CHEM_DEV, NLM_CHEM_TST]
-
-for fp in filepaths:
+for fp in NLM_CHEM_GROUPS.values():
     #
     with open(fp, mode='r', encoding='utf-8') as f:
         s = json.load(f)

@@ -7,6 +7,7 @@
 #   2021-07-06, 16:50
 #
 # Last updated:
+#   2021-07-12, 17:07
 #   2021-07-06, 16:51
 #
 
@@ -16,9 +17,7 @@ sys.path.extend(['.', '..'])
 from config import ROOT
 from config import LOGS
 from config import NLM_CHEM
-from config import NLM_CHEM_TRN
-from config import NLM_CHEM_DEV
-from config import NLM_CHEM_TST
+from config import NLM_CHEM_GROUPS
 
 
 #
@@ -30,6 +29,6 @@ sf = '{}:\n    {}\n'
 print(sf.format('ROOT', ROOT))
 print(sf.format('LOGS', LOGS))
 print(sf.format('NLM_CHEM', NLM_CHEM))
-print(sf.format('NLM_CHEM_TRN', NLM_CHEM_TRN))
-print(sf.format('NLM_CHEM_DEV', NLM_CHEM_DEV))
-print(sf.format('NLM_CHEM_TST', NLM_CHEM_TST))
+
+for g, fp in NLM_CHEM_GROUPS.items():
+    print(sf.format('NLM_CHEM_GROUPS[{}]'.format(repr(g)), NLM_CHEM_GROUPS[g]))
