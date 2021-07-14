@@ -329,16 +329,19 @@ class IndexingIdentifierSet:
 class Passage:
     #
     # A Passage is initialized with a text, a span (start and end
-    # offsets), and a type (abstract, fig_caption, footnote, front,
-    # paragraph, ref, table_caption, title, etc).
+    # offsets), a type (abstract, fig_caption, footnote, front,
+    # paragraph, ref, table_caption, title, etc), and a section type
+    # (ABSTRACT, INTRO, METHODS, RESULTS, etc). Note that, in the
+    # NLM-Chem dataset, frequently the section types are undefined.
     #
     # At first, a Passage has no annotations. But these can be added
     # iteratively. Annotations are Entity or IndexingIdentifier objects.
     #
-    def __init__(self, text, span, typ):
+    def __init__(self, text, span, typ, section_type):
         assert isinstance(text, str)
         assert_valid_span(span)
         assert isinstance(typ, str)
+        assert isinstance(section_type, str)
         #
         start, end = span
         n_characters = end - start
@@ -350,12 +353,14 @@ class Passage:
         self.end = end
         self.n_characters = n_characters
         self.typ = typ
+        self.section_type = section_type
         self.es = EntitySet()
         self.iis = IndexingIdentifierSet()
     #
     def __str__(self):
-        s = 'Passage {} {}: {}.'
-        return s.format(repr(self.typ), self.span, repr(self.text))
+        s = 'Passage {} ({}, {}): {}.'
+        return s.format(self.span, repr(self.typ),
+                        repr(self.section_type), repr(self.text))
     #
     def add_entity(self, e):
         #
@@ -390,6 +395,7 @@ class Passage:
         return {
             'annotations': self.es.json() + self.iis.json(),
             'infons': {
+                'section_type': self.section_type,
                 'type': self.typ
             },
             'offset': self.start,
@@ -408,10 +414,10 @@ class PassageOrderedList:
     #
     # Example (made-up):
     #
-    # >>> p1 = Passage('The title.', (0, 10), 'front')
-    # >>> p2 = Passage('An abstract.', (11, 23), 'abstract')
-    # >>> p3 = Passage('A first paragraph.', (24, 42), 'paragraph')
-    # >>> p4 = Passage('A second paragraph.', (43, 62), 'paragraph')
+    # >>> p1 = Passage('The title.', (0, 10), 'front', 'TITLE')
+    # >>> p2 = Passage('An abstract.', (11, 23), 'abstract', 'ABSTRACT')
+    # >>> p3 = Passage('A first paragraph.', (24, 42), 'paragraph', 'INTRO')
+    # >>> p4 = Passage('A second paragraph.', (43, 62), 'paragraph', 'INTRO')
     # >>>
     # >>> pol = PassageOrderedList()
     # >>> pol.add(p3)
