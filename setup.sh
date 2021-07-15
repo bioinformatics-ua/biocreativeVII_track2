@@ -16,8 +16,10 @@ cd "local/datasets/NLM-Chem"
 
 if [ ! -f "$GZ_FILE" ]; then
 	wget $URL_GZ_FILE
-    tar -xf $GZ_FILE
-fi	        
+fi	     
+
+# untar
+tar -xf $GZ_FILE
 
 cd -
 
