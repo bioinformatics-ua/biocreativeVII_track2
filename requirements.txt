@@ -1,0 +1,5 @@
+numpy==1.18.4
+tensorflow==2.2.2
+transformers==3.3.0
+matplotlib==3.3.0
+jupyterlab
