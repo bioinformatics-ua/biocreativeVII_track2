@@ -76,7 +76,7 @@ def main():
     if args.input_mesh_xml_file:
         with open(args.input_mesh_xml_file) as xmlFile:
             data = xmltodict.parse(xmlFile.read())
-        data = json.dumps(data)
+        data = json.dumps(data, indent=4, sort_keys=True)
         if args.save_xml_to_json:
             with open(args.input_mesh_json_file,"w") as jsonFile:
                 jsonFile.write(data)
@@ -149,7 +149,7 @@ def main():
 
 
     with open(args.output_mesh_json_file, "w") as jsonFile:
-        json.dump(RecordsList, jsonFile)
+        json.dump(RecordsList, jsonFile, indent=4, sort_keys=True)
 
     
         
