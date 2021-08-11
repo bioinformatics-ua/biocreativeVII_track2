@@ -46,14 +46,16 @@ def main():
 		exit()
 
 	files, goldStandard = Utils.readFiles()
-	gsAnn = goldStandard["annotations"] if not args.test else False
-	gsIndexing = goldStandard["indexing"] if not args.test else False
+	# gsAnn = goldStandard["annotations"] if not args.test else False
+	# gsIndexing = goldStandard["indexing"] if not args.test else False
+	gsAnn = []
+	gsIndexing = []
 
 	if args.annotate:
 		annotations = Annotator.annotate(files, goldStandard=gsAnn, test=args.test)
 
 	if args.normalize:
-		if not annotations:
+		if not args.annotate:
 			annotations = Utils.readAnnotations()
 		meshList = Normalizer.normalize(annotations, goldStandard=gsAnn, test=args.test)
 		Utils.buildIndentificationSubmission(meshList)
