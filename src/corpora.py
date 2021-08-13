@@ -10,11 +10,12 @@ from config import CHEMDNER_GROUPS
 from config import NLM_CHEM_GROUPS
 from elements import Collection
 from elements import Document
-from elements import Entity
 from elements import IndexingIdentifier
+from elements import NormalizedEntity
 from elements import Passage
 
 from Utils import BaseLogger
+
 
 ANNOTATION_TYPES = ['Chemical', 'MeSH_Indexing_Chemical']
 
@@ -25,7 +26,7 @@ def is_mesh_identifier(s):
     #
     # Naive check for a MeSH identifier.
     #
-    if RE_MESH.fullmatch(s):
+    if (s == '-') or RE_MESH.fullmatch(s):
         return True
     else:
         return False
@@ -45,34 +46,35 @@ def find_mesh_identifiers(s):
     #   "-"
     #
     assert isinstance(s, str)
-    #
+
     if '|' in s:
         assert ',' not in s
         split_char = '|'
     else:
         split_char = ','
-    #
-    identifiers = set()
+
+    identifiers = list()
     for i in s.split(split_char):
-        if i in ['', '-']:
-            pass
-        else:
+        if i != '-':
             if not i.startswith('MESH:'):
                 i = 'MESH:' + i
-            assert is_mesh_identifier(i), 'Invalid MeSH identifier: {}.'.format(repr(i))
-            identifiers.add(i)
-    #
+        assert is_mesh_identifier(i), 'Invalid MeSH identifier: {}.'.format(repr(i))
+        identifiers.append(i)
+
     return identifiers
 
 
-def get_collection_from_json(d, ignore_non_contiguous_entities=False, ignore_normalization_identifiers=False, solve_overlapping_passages=False):
+def get_collection_from_json(d,
+                             ignore_non_contiguous_entities=False,
+                             ignore_normalization_identifiers=False,
+                             solve_overlapping_passages=False):
     assert isinstance(d, dict)
     assert isinstance(ignore_non_contiguous_entities, bool)
     assert isinstance(ignore_normalization_identifiers, bool)
     assert isinstance(solve_overlapping_passages, bool)
-    #
+
     c = Collection()
-    #
+
     for document in d['documents']:
         doc = Document(identifier=document['id'])
         for passage in document['passages']:
@@ -126,7 +128,7 @@ def get_collection_from_json(d, ignore_non_contiguous_entities=False, ignore_nor
                     if ignore_non_contiguous_entities:
                         if len(ann_locations) > 1:
                             continue
-                    #
+
                     assert len(ann_locations) == 1
                     ann_location = ann_locations[0]
                     ann_start = ann_location['offset']
@@ -140,11 +142,11 @@ def get_collection_from_json(d, ignore_non_contiguous_entities=False, ignore_nor
                     # identifiers for the entities.
                     #
                     if ignore_normalization_identifiers:
-                        ann_identifiers = ''
+                        ann_identifiers = '-'
                     else:
                         ann_identifiers = ann['infons']['identifier']
-                    #
-                    ann_identifiers_set = find_mesh_identifiers(ann_identifiers)
+
+                    ann_identifiers_list = find_mesh_identifiers(ann_identifiers)
                     #
                     # If the annotation text does not match the text
                     # from the Passage text, then automatically try to
@@ -172,8 +174,8 @@ def get_collection_from_json(d, ignore_non_contiguous_entities=False, ignore_nor
                         else:
                             print('Error: in document {}, the annotation {}, with original span {}, did not match the passage text, and the correct span could not be found.'.format(repr(doc.identifier), repr(ann_text), (ann_start_old, ann_end_old)))
                             exit()
-                    #
-                    e = Entity(ann_text, (ann_start, ann_end), ann_type, ann_identifiers_set)
+
+                    e = NormalizedEntity(ann_text, (ann_start, ann_end), ann_type, ann_identifiers_list)
                     p.add_entity(e)
                 elif ann_type == 'MeSH_Indexing_Chemical':
                     ann_identifier = ann['infons']['identifier']
@@ -182,7 +184,7 @@ def get_collection_from_json(d, ignore_non_contiguous_entities=False, ignore_nor
                     p.add_indexing_identifier(ii)
             doc.add_passage(p)
         c.add(doc.identifier, doc)
-    #
+
     return c
 
 
@@ -191,18 +193,22 @@ def read_json(filepath):
         d = json.load(f)
     return d
 
+
 class BaseCorpus(BaseLogger):
-    
+
     def __init__(self,
                  groups,
                  ignore_non_contiguous_entities,
                  ignore_normalization_identifiers,
                  solve_overlapping_passages):
+
         super().__init__()
+
         self.collections = dict()
         self.groups = list()
         self.n_documents = 0
         self.n_documents_per_group = dict()
+
         for g, fp in groups.items():
             self.groups.append(g)
             self.collections[g] = get_collection_from_json(d=read_json(fp),
@@ -211,39 +217,43 @@ class BaseCorpus(BaseLogger):
                                                            solve_overlapping_passages=solve_overlapping_passages)
             self.n_documents += self.collections[g].n_documents
             self.n_documents_per_group[g] = self.collections[g].n_documents
-            
-        # Change made by Tiago Almeida 29/07/2021
+
         for group, collection in self.collections.items():
             collection.add_metadata(self.__class__.__name__, group)
-    #
+
     def __str__(self):
         return self.__class__.__name__
-    
-    def __getitem__(self, g):
-        return self.collections[g]
 
-class NLMChemCorpus(BaseCorpus):
-    #
-    def __init__(self):
-        super().__init__(NLM_CHEM_GROUPS, 
-                         ignore_non_contiguous_entities=False,
-                         ignore_normalization_identifiers=False,
-                         solve_overlapping_passages=False)
+    def __getitem__(self, key):
+        return self.collections[key]
+
+    def __iter__(self):
+        for group, collection in self.collections.items():
+            yield (group, collection)
+
 
 class CDRCorpus(BaseCorpus):
-    #
+
     def __init__(self):
-        super().__init__(CDR_GROUPS, 
+        super().__init__(CDR_GROUPS,
                          ignore_non_contiguous_entities=True,
                          ignore_normalization_identifiers=False,
                          solve_overlapping_passages=False)
 
 
 class CHEMDNERCorpus(BaseCorpus):
-    #
+
     def __init__(self):
-        super().__init__(CHEMDNER_GROUPS, 
+        super().__init__(CHEMDNER_GROUPS,
                          ignore_non_contiguous_entities=False,
                          ignore_normalization_identifiers=True,
                          solve_overlapping_passages=True)
 
+
+class NLMChemCorpus(BaseCorpus):
+
+    def __init__(self):
+        super().__init__(NLM_CHEM_GROUPS,
+                         ignore_non_contiguous_entities=False,
+                         ignore_normalization_identifiers=False,
+                         solve_overlapping_passages=False)

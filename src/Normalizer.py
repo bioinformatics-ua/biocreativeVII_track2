@@ -21,13 +21,13 @@ class Normalizer():
 		with open("/backup/data/MeSH2021/filteredMeSH2021_D01-D02-D03-D04.json","r") as file:
 			meshJSON = json.load(file)
 
+
+
+		meshDict = dict()
 		# # PARA UM DICIONÁRIO BASEADO APENAS NO DESCRIPTOR NAME E ID
-		# meshDict = dict()
 		# for entry in meshJSON:
 		# 	meshDict[entry["DescriptorName"]] = entry["DescriptorUI"]
-
-		# PARA UM DICIONÁRIO EXPANDIDO COM ENTRYTERMS
-		meshDict = dict()
+		# # PARA UM DICIONÁRIO EXPANDIDO COM ENTRYTERMS
 		for entry in meshJSON:
 			meshDict[entry["DescriptorName"].lower()] = entry["DescriptorUI"]
 			for concept in entry["Concepts"]:
@@ -45,38 +45,37 @@ class Normalizer():
 		unmapped=0
 		mappedDocuments = dict()
 
+
 		# SEM Ab3P a expandir abreviações
 		if not ab3pAbbreviationExpansion:
 			for id, document in corpus:
-				meshSet = set()
+				meshTupleList = set()
 				for passage in document.pol:
-					for entity in passage.es:
-						print(entity.text, entity.identifiers)
+					for entity in passage.nes:
+						# print(entity.text, entity.identifiers)
 						#if entity.text in meshDict.keys():
 						if entity.text in meshDict.keys():
 							meshCode = "MESH:" + meshDict[entity.text]
-							meshSet.add(meshCode)
-							entity.identifiers = {meshCode}
-							entity.identifiers_str = ','.join(sorted(entity.identifiers))
+							meshTupleList.append(([meshCode], entity.span))
+							entity.set_identifiers([meshCode])
 							mapped+=1
 						else:
-							meshSet.add("-")
-							entity.identifiers = {"-"}
-							entity.identifiers_str = ','.join(sorted(entity.identifiers))
+							meshTupleList.append((["-"], entity.span))
+							entity.set_identifiers(["-"])
 							unmapped+=1
 						# print(entity.text)
 					# print(entity.identifiers)
 					# print(entity.text)
 
-				mappedDocuments[id] = list(meshSet)
+				mappedDocuments[id] = meshTupleList
 			print(mapped)
 			print(unmapped)
 
 		elif ab3pAbbreviationExpansion:
+			# COM Ab3P a expandir abreviações, dicionário de abreviações ao nível do documento
 			if ab3pDictLevel == "Document":
-				# COM Ab3P a expandir abreviações, dicionário de abreviações ao nível do documento
 				for id, document in corpus:
-					meshSet = set()
+					meshTupleList = list()
 					fd, filePath = tempfile.mkstemp()
 					try:
 						with os.fdopen(fd, 'w') as tmpFile:
@@ -95,41 +94,37 @@ class Normalizer():
 										pass
 
 							for passage in document.pol:
-								for entity in passage.es:
+								for entity in passage.nes:
 									# if entity.text in meshDict.keys():
 									if entity.text.lower() in meshDict.keys():
 										meshCode = "MESH:" + meshDict[entity.text.lower()]
-										meshSet.add(meshCode)
-										entity.identifiers = {meshCode}
-										entity.identifiers_str = ','.join(sorted(entity.identifiers))
+										meshTupleList.append(([meshCode], entity.span))
+										entity.set_identifiers([meshCode])
 										mapped+=1
 									elif entity.text.lower() in abbreviationMap.keys():
 										text = abbreviationMap[entity.text.lower()]
 										if text in meshDict.keys():
 											meshCode = "MESH:" + meshDict[text]
-											meshSet.add(meshCode)
-											entity.identifiers = {meshCode}
-											entity.identifiers_str = ','.join(sorted(entity.identifiers))
+											meshTupleList.append(([meshCode], entity.span))
+											entity.set_identifiers([meshCode])
 											mapped+=1
 										else:
-											meshSet.add("-")
-											entity.identifiers = {"-"}
-											entity.identifiers_str = ','.join(sorted(entity.identifiers))
+											meshTupleList.append((["-"], entity.span))
+											entity.set_identifiers(["-"])
 											unmapped+=1
 									else:
-										meshSet.add("-")
-										entity.identifiers = {"-"}
-										entity.identifiers_str = ','.join(sorted(entity.identifiers))
+										meshTupleList.append((["-"], entity.span))
+										entity.set_identifiers(["-"])
 										unmapped+=1
 					finally:
 							os.remove(filePath)
 
-					mappedDocuments[id] = list(meshSet)
+					mappedDocuments[id] = meshTupleList
 				print(mapped)
 				print(unmapped)
 
+			# COM Ab3P a expandir abreviações, dicionário de abreviações ao nível do corpus
 			elif ab3pDictLevel == "Corpus":
-				# COM Ab3P a expandir abreviações, dicionário de abreviações ao nível do corpus
 				abbreviationMap = dict()
 				for id, document in corpus:
 					fd, filePath = tempfile.mkstemp()
@@ -151,36 +146,32 @@ class Normalizer():
 						os.remove(filePath)
 
 				for id, document in corpus:
-					meshSet = set()
+					meshTupleList = list()
 					for passage in document.pol:
-						for entity in passage.es:
+						for entity in passage.nes:
 							# if entity.text in meshDict.keys():
 							if entity.text.lower() in meshDict.keys():
 								meshCode = "MESH:" + meshDict[entity.text.lower()]
-								meshSet.add(meshCode)
-								entity.identifiers = {meshCode}
-								entity.identifiers_str = ','.join(sorted(entity.identifiers))
+								meshTupleList.append(([meshCode], entity.span))
+								entity.set_identifiers([meshCode])
 								mapped+=1
 							elif entity.text.lower() in abbreviationMap.keys():
 								text = abbreviationMap[entity.text.lower()]
 								if text in meshDict.keys():
 									meshCode = "MESH:" + meshDict[text]
-									meshSet.add(meshCode)
-									entity.identifiers = {meshCode}
-									entity.identifiers_str = ','.join(sorted(entity.identifiers))
+									meshTupleList.append(([meshCode], entity.span))
+									entity.set_identifiers([meshCode])
 									mapped+=1
 								else:
-									meshSet.add("-")
-									entity.identifiers = {"-"}
-									entity.identifiers_str = ','.join(sorted(entity.identifiers))
+									meshTupleList.append((["-"], entity.span))
+									entity.set_identifiers(["-"])
 									unmapped+=1
 							else:
-								meshSet.add("-")
-								entity.identifiers = {"-"}
-								entity.identifiers_str = ','.join(sorted(entity.identifiers))
+								meshTupleList.append((["-"], entity.span))
+								entity.set_identifiers(["-"])
 								unmapped+=1
 
-					mappedDocuments[id] = list(meshSet)
+					mappedDocuments[id] = meshTupleList
 				print(mapped)
 				print(unmapped)
 
@@ -188,12 +179,9 @@ class Normalizer():
 
 		# print(mappedDocuments)
 		#
-		# with open("teste.json", "w") as file:
+		# with open("outputForBaldGuy.json", "w") as file:
 		# 	json.dump(mappedDocuments, file, indent=4)
 
-		# for id, document in corpus:
-		# 	for entity in document.entities():
-		# 		print(entity.text, entity.identifiers)
 
 		with open("nlm_chem_train_bioc.json", "w") as file:
 			# newJson = corpus.json()
