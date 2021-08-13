@@ -50,7 +50,7 @@ class Normalizer():
 		if not ab3pAbbreviationExpansion:
 			for id, document in corpus:
 				meshTupleList = set()
-				for passage in document.pol:
+				for passage in document:
 					for entity in passage.nes:
 						# print(entity.text, entity.identifiers)
 						#if entity.text in meshDict.keys():
@@ -93,7 +93,7 @@ class Normalizer():
 									except ValueError:
 										pass
 
-							for passage in document.pol:
+							for passage in document:
 								for entity in passage.nes:
 									# if entity.text in meshDict.keys():
 									if entity.text.lower() in meshDict.keys():
@@ -147,7 +147,7 @@ class Normalizer():
 
 				for id, document in corpus:
 					meshTupleList = list()
-					for passage in document.pol:
+					for passage in document:
 						for entity in passage.nes:
 							# if entity.text in meshDict.keys():
 							if entity.text.lower() in meshDict.keys():
