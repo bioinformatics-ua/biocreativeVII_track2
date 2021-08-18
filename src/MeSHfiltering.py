@@ -62,6 +62,10 @@ def main():
                         default=False,
                         action='store_true',
                         help="Whether to save a .json file with the content from the converted xml input file.")
+    parser.add_argument("--input_source_type",
+                        type=str,
+                        required=True,
+                        help="MeSH for MeSH sources, SCR for supplementary concept record sources.")
     parser.add_argument("--output_mesh_json_file",
                         type=str,
                         required=True,
@@ -80,39 +84,60 @@ def main():
         if args.save_xml_to_json:
             with open(args.input_mesh_json_file,"w") as jsonFile:
                 jsonFile.write(data)
+        print("Written .json file")
+
 
     with open(args.input_mesh_json_file,"r") as jsonFile:
         data=json.load(jsonFile)
 
-    validTreeCodes = args.valid_mesh_tree_codes
+    if args.input_source_type == "MeSH":
 
-    RecordsList = []
+        validTreeCodes = args.valid_mesh_tree_codes
 
-    for descriptor in data["DescriptorRecordSet"]["DescriptorRecord"]:
-        DescriptorDict = {}
-        DescriptorDict["DescriptorUI"]   = descriptor["DescriptorUI"]
-        DescriptorDict["DescriptorName"] = descriptor["DescriptorName"]["String"]
+        RecordsList = []
 
-        try:
-            DescriptorDict["TreeNumberList"] = descriptor["TreeNumberList"]["TreeNumber"]
-        except KeyError:
-            DescriptorDict["TreeNumberList"] = ""
+        for descriptor in data["DescriptorRecordSet"]["DescriptorRecord"]:
+            DescriptorDict = {}
+            DescriptorDict["DescriptorUI"]   = descriptor["DescriptorUI"]
+            DescriptorDict["DescriptorName"] = descriptor["DescriptorName"]["String"]
 
-        validTreeCode = False
-        if isinstance(DescriptorDict["TreeNumberList"], list):
-            for treeCode in DescriptorDict["TreeNumberList"]:
-                if treeCode.startswith(tuple(validTreeCodes)):
+            try:
+                DescriptorDict["TreeNumberList"] = descriptor["TreeNumberList"]["TreeNumber"]
+            except KeyError:
+                DescriptorDict["TreeNumberList"] = ""
+
+            validTreeCode = False
+            if isinstance(DescriptorDict["TreeNumberList"], list):
+                for treeCode in DescriptorDict["TreeNumberList"]:
+                    if treeCode.startswith(tuple(validTreeCodes)):
+                        validTreeCode = True
+            else:
+                if DescriptorDict["TreeNumberList"].startswith(tuple(validTreeCodes)):
                     validTreeCode = True
-        else:
-            if DescriptorDict["TreeNumberList"].startswith(tuple(validTreeCodes)):
-                validTreeCode = True
 
-        if validTreeCode:
-            conceptList=[]
-            if isinstance(descriptor["ConceptList"]["Concept"], list):
-                for concept in descriptor["ConceptList"]["Concept"]:
+            if validTreeCode:
+                conceptList=[]
+                if isinstance(descriptor["ConceptList"]["Concept"], list):
+                    for concept in descriptor["ConceptList"]["Concept"]:
+                        conceptDict = {}
+                        entryTermsList = []
+                        conceptDict["ConceptName"] = concept["ConceptName"]["String"]
+                        if "CASN1Name" in concept.keys():
+                            conceptDict["ConceptCASN1Name"] = concept["CASN1Name"]
+                        if "ScopeNote" in concept.keys():
+                            conceptDict["ConceptScopeNote"] = concept["ScopeNote"]
+
+                        if isinstance(concept["TermList"]["Term"], list):
+                            for term in concept["TermList"]["Term"]:
+                                entryTermsList.append(term["String"])
+                        else:
+                            entryTermsList.append(concept["TermList"]["Term"]["String"])
+                        conceptDict["EntryTerms"] = entryTermsList
+                        conceptList.append(conceptDict)
+                else:
                     conceptDict = {}
                     entryTermsList = []
+                    concept = descriptor["ConceptList"]["Concept"]
                     conceptDict["ConceptName"] = concept["ConceptName"]["String"]
                     if "CASN1Name" in concept.keys():
                         conceptDict["ConceptCASN1Name"] = concept["CASN1Name"]
@@ -123,28 +148,68 @@ def main():
                         for term in concept["TermList"]["Term"]:
                             entryTermsList.append(term["String"])
                     else:
-                        entryTermsList.append(concept["TermList"]["Term"]["String"])  
+                        entryTermsList.append(concept["TermList"]["Term"]["String"])
                     conceptDict["EntryTerms"] = entryTermsList
+                    conceptList.append(conceptDict)
+
+                DescriptorDict["Concepts"] = conceptList
+                RecordsList.append(DescriptorDict)
+
+
+    elif args.input_source_type == "SCR":
+
+        RecordsList = []
+
+        for descriptor in data["SupplementalRecordSet"]["SupplementalRecord"]:
+
+            DescriptorDict = {}
+            DescriptorDict["DescriptorUI"]   = descriptor["SupplementalRecordUI"]
+            DescriptorDict["DescriptorName"] = descriptor["SupplementalRecordName"]["String"]
+
+            try:
+                DescriptorDict["Note"] = descriptor["Note"]
+            except KeyError:
+                pass
+
+            conceptList=[]
+            if isinstance(descriptor["ConceptList"]["Concept"], list):
+                for concept in descriptor["ConceptList"]["Concept"]:
+                    conceptDict = {}
+                    conceptDict["ConceptName"] = concept["ConceptName"]["String"]
+                    if "CASN1Name" in concept.keys():
+                        conceptDict["ConceptCASN1Name"] = concept["CASN1Name"]
                     conceptList.append(conceptDict)
             else:
                 conceptDict = {}
-                entryTermsList = []
                 concept = descriptor["ConceptList"]["Concept"]
                 conceptDict["ConceptName"] = concept["ConceptName"]["String"]
                 if "CASN1Name" in concept.keys():
                     conceptDict["ConceptCASN1Name"] = concept["CASN1Name"]
-                if "ScopeNote" in concept.keys():
-                    conceptDict["ConceptScopeNote"] = concept["ScopeNote"]
-
-                if isinstance(concept["TermList"]["Term"], list):
-                    for term in concept["TermList"]["Term"]:
-                        entryTermsList.append(term["String"])
-                else: 
-                    entryTermsList.append(concept["TermList"]["Term"]["String"])
-                conceptDict["EntryTerms"] = entryTermsList
                 conceptList.append(conceptDict)
 
+            headingMappingList=[]
+            if isinstance(descriptor["HeadingMappedToList"]["HeadingMappedTo"], list):
+                for concept in descriptor["HeadingMappedToList"]["HeadingMappedTo"]:
+                    headingDict = {}
+                    try:
+                        headingDict["HeadingMappedUI"] = concept["DescriptorReferredTo"]["DescriptorUI"]
+                        headingDict["HeadingMappedName"] = concept["DescriptorReferredTo"]["DescriptorName"]["String"]
+                    except KeyError:
+                        pass
+                    headingMappingList.append(headingDict)
+            else:
+                concept = descriptor["HeadingMappedToList"]["HeadingMappedTo"]
+                headingDict = {}
+                try:
+                    headingDict["HeadingMappedUI"] = concept["DescriptorReferredTo"]["DescriptorUI"]
+                    headingDict["HeadingMappedName"] = concept["DescriptorReferredTo"]["DescriptorName"]["String"]
+                except KeyError:
+                    pass
+                headingMappingList.append(headingDict)
+
             DescriptorDict["Concepts"] = conceptList
+            DescriptorDict["HeadingMappings"] = headingMappingList
+
             RecordsList.append(DescriptorDict)
 
 
