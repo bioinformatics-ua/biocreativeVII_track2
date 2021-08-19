@@ -10,6 +10,8 @@ import tempfile
 class Normalizer():
 	def normalize(annotations, goldStandard, test=False):
 
+		test = True
+
 		corpus = NLMChemCorpus()
 		if test:
 			corpus = corpus["test"]
@@ -18,28 +20,55 @@ class Normalizer():
 			# corpus = corpus["dev"]
 		print(corpus)
 
-		with open("/backup/data/MeSH2021/filteredMeSH2021_D01-D02-D03-D04.json","r") as file:
-			meshJSON = json.load(file)
-
-
-
-		meshDict = dict()
-		# # PARA UM DICIONÁRIO BASEADO APENAS NO DESCRIPTOR NAME E ID
-		# for entry in meshJSON:
-		# 	meshDict[entry["DescriptorName"]] = entry["DescriptorUI"]
-		# # PARA UM DICIONÁRIO EXPANDIDO COM ENTRYTERMS
-		for entry in meshJSON:
-			meshDict[entry["DescriptorName"].lower()] = entry["DescriptorUI"]
-			for concept in entry["Concepts"]:
-				if "ConceptCASN1Name" in concept.keys():
-					meshDict[concept["ConceptCASN1Name"].lower()] = entry["DescriptorUI"]
-				for entryTerm in concept["EntryTerms"]:
-					meshDict[entryTerm.lower()] = entry["DescriptorUI"]
-
 
 		ab3pAbbreviationExpansion = True
 		ab3pExpansionDictLevels = ["Document", "Corpus"]
 		ab3pDictLevel = ab3pExpansionDictLevels[1]
+		meshDictionary = ["MeSH_Dxx","SCR"]
+
+		meshDict = dict()
+		if "MeSH_D01_04" in meshDictionary:
+			with open("../dataset/MeSH_DICTIONARIES/filteredMeSH2021_D01-D02-D03-D04.json","r") as file:
+				meshJSON = json.load(file)
+
+			for entry in meshJSON:
+				meshDict[entry["DescriptorName"].lower()] = entry["DescriptorUI"]
+				for concept in entry["Concepts"]:
+					if "ConceptCASN1Name" in concept.keys():
+						meshDict[concept["ConceptCASN1Name"].lower()] = entry["DescriptorUI"]
+					for entryTerm in concept["EntryTerms"]:
+						meshDict[entryTerm.lower()] = entry["DescriptorUI"]
+
+		if "MeSH_Dxx" in meshDictionary:
+			with open("../dataset/MeSH_DICTIONARIES/full_Dsection_MeSH_dictionary.json","r") as file:
+				meshJSON = json.load(file)
+
+			for entry in meshJSON:
+				meshDict[entry["DescriptorName"].lower()] = entry["DescriptorUI"]
+				for concept in entry["Concepts"]:
+					if "ConceptCASN1Name" in concept.keys():
+						meshDict[concept["ConceptCASN1Name"].lower()] = entry["DescriptorUI"]
+					for entryTerm in concept["EntryTerms"]:
+						meshDict[entryTerm.lower()] = entry["DescriptorUI"]
+
+		if "SCR" in meshDictionary:
+			with open("../dataset/MeSH_DICTIONARIES/filteredSCR2021.json","r") as file:
+				meshJSON = json.load(file)
+
+			for entry in meshJSON:
+				meshDict[entry["DescriptorName"].lower()] = entry["DescriptorUI"]
+				for concept in entry["Concepts"]:
+					if "ConceptCASN1Name" in concept.keys():
+						meshDict[concept["ConceptCASN1Name"].lower()] = entry["DescriptorUI"]
+					if "ConceptName" in concept.keys():
+						meshDict[concept["ConceptName"].lower()] = entry["DescriptorUI"]
+				try:
+					for mapping in concept["HeadingMappings"]:
+						meshDict[mapping["HeadingMappedName"].lower()] = meshDict["HeadingMappedUI"].strip("*")
+				except KeyError:
+					pass
+
+
 
 		mapped=0
 		unmapped=0
@@ -178,12 +207,12 @@ class Normalizer():
 
 
 		# print(mappedDocuments)
-		#
-		# with open("outputForBaldGuy.json", "w") as file:
-		# 	json.dump(mappedDocuments, file, indent=4)
+
+		with open("outputForBaldGuy.json", "w") as file:
+			json.dump(mappedDocuments, file, indent=4)
 
 
-		with open("nlm_chem_train_bioc.json", "w") as file:
+		with open("nlm_chem_test_bioc.json", "w") as file:
 			# newJson = corpus.json()
 			# json.dump(newJson, file, indent=4)
 			newJson = corpus.pretty_json()
