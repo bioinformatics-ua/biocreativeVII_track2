@@ -9,7 +9,7 @@ def help(show=False):
 	parser = argparse.ArgumentParser(description="")
 	configs = parser.add_argument_group('Global settings', 'This settings are related with the location of the files and directories.')
 	configs.add_argument('-s', '--settings', dest='settings', \
-						type=str, default="File with settings (default: settings.ini)", \
+						type=str, default="settings.ini", \
 						help='The system settings file (default: settings.ini)')	
 	configs.add_argument('-a', '--annotate', default=False, action='store_true', \
 						 help='Flag to annotate the files (default: False)')
@@ -50,6 +50,7 @@ def main():
 	# gsIndexing = goldStandard["indexing"] if not args.test else False
 	gsAnn = []
 	gsIndexing = []
+	meshList = None
 
 	if args.annotate:
 		annotations = Annotator.annotate(files, goldStandard=gsAnn, test=args.test)
@@ -61,10 +62,8 @@ def main():
 		Utils.buildIndentificationSubmission(meshList)
 
 	if args.indexing:
-		if not meshList:
-			meshList = Utils.readAnnotations()
-		indexedChemicals = Indexer.index(meshList, goldStandard=gsIndexing, test=args.test)
-		Utils.buildIndexingSubmission(indexedChemicals)
+		readMeshList = Utils.readMesh(settings["files"]["mesh"])
+		Indexer.index(mesh=readMeshList, test=args.test)
 
 	print("Done!")
 main()

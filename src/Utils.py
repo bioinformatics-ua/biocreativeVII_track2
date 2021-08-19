@@ -4,6 +4,13 @@ class Utils():
 
 	def readAnnotations():
 		return []
+
+	def readMesh(meshFileLocation):
+		import json
+		f = open(meshFileLocation,)
+		data = json.load(f)
+		f.close()
+		return data
 		
 	def buildIndentificationSubmission(indentifiedChemicals):
 		print("Write file")

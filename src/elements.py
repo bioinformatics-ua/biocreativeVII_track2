@@ -30,6 +30,22 @@ def span_overlaps_span(span1, span2):
         return True
 
 
+def span_contains_span(span1, span2):
+    assert_valid_span(span1)
+    assert_valid_span(span2)
+    if (span1[0] <= span2[0]) and (span1[1] >= span2[1]):
+        return True
+    else:
+        return False
+
+
+def add_offset_to_spans(spans, offset):
+    return [
+        (start + offset, end + offset)
+        for (start, end) in spans
+    ]
+
+
 class Entity:
     r"""
     An Entity has a textual mention, a span (start and end offsets),
@@ -114,6 +130,9 @@ class Entity:
                     if self.text < other.text:
                         return True
         return False
+
+    def to_normalized_entity(self):
+        return NormalizedEntity(self.text, self.span, self.typ)
 
     def json(self, i=1):
         assert isinstance(i, int)
@@ -211,6 +230,9 @@ class EntitySet:
         if make_deepcopy:
             es = deepcopy(es)
         return es
+
+    def to_normalized_entity_set(self):
+        return NormalizedEntitySet([e.to_normalized_entity() for e in self.entities])
 
     def json(self, start=1):
         entities = self.get(sort=True, make_deepcopy=False)
@@ -738,6 +760,25 @@ class PassageOrderedList:
 
         return ''.join(text)
 
+    def passages_texts(self):
+        passages_texts = list()
+        for passage in self:
+            passages_texts.append(passage.text)
+        return passages_texts
+
+    def passages_spans(self):
+        passages_spans = list()
+        for passage in self:
+            passages_spans.append(passage.span)
+        return passages_spans
+
+    def passages_entities(self, sort=False, make_deepcopy=False):
+        passages_entities = list()
+        for passage in self:
+            entities = passage.entities(sort=sort, make_deepcopy=make_deepcopy)
+            passages_entities.append(entities)
+        return passages_entities
+
     def nes(self):
         nes = NormalizedEntitySet()
         for p in self.passages:
@@ -814,6 +855,15 @@ class Document:
     def text(self):
         return self.pol.text()
 
+    def passages_texts(self):
+        return self.pol.passages_texts()
+
+    def passages_spans(self):
+        return self.pol.passages_spans()
+
+    def passages_entities(self, sort=False, make_deepcopy=False):
+        return self.pol.passages_entities(sort=sort, make_deepcopy=make_deepcopy)
+
     def nes(self):
         return self.pol.nes()
 
@@ -828,6 +878,28 @@ class Document:
 
     def get_entity_set(self):
         return self.pol.get_entity_set()
+
+    def set_indexing_identifiers(self, indexing_identifiers):
+        err = 'You cannot set indexing identifiers for a document without passages.'
+        assert self.n_passages > 0, err
+        #
+        # First, delete existent indexing identifiers from all passages.
+        #
+        for p in self:
+            p.iis = IndexingIdentifierSet()
+        #
+        # Then, add the new indexing identifiers only in the first
+        # passage.
+        #
+        for p in self:
+            break
+        p.iis = IndexingIdentifierSet(indexing_identifiers)
+
+    def set_mesh_indexing_identifiers(self, mesh_indexing_identifiers):
+        self.set_indexing_identifiers([
+            IndexingIdentifier(mii, typ='MeSH_Indexing_Chemical')
+            for mii in mesh_indexing_identifiers
+        ])
 
     def json(self):
         return {
@@ -952,3 +1024,18 @@ def get_non_overlapping_and_overlapping_entities(entities):
             non_overlapping_entities.append(entity)
 
     return non_overlapping_entities, overlapping_entities
+
+
+def get_entities_within_span(entities, span):
+    #
+    # This is a lazy function to get only the entities that are within
+    # a given span.
+    # Entities that are outside the given span are filtered out.
+    #
+    filtered_entities = list()
+
+    for e in entities:
+        if span_contains_span(span, e.span):
+            filtered_entities.append(e)
+
+    return filtered_entities
