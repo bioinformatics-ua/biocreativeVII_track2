@@ -10,14 +10,14 @@ import tempfile
 class Normalizer():
 	def normalize(annotations, goldStandard, test=False):
 
-		test = True
+		test = False
 
 		corpus = NLMChemCorpus()
 		if test:
 			corpus = corpus["test"]
 		else:
 			corpus = corpus["train"]
-			# corpus = corpus["dev"]
+			#corpus = corpus["dev"]
 		print(corpus)
 
 
@@ -212,14 +212,11 @@ class Normalizer():
 			json.dump(mappedDocuments, file, indent=4)
 
 
-		with open("nlm_chem_test_bioc.json", "w") as file:
+		with open("nlm_chem_train_bioc.json", "w") as file:
 			# newJson = corpus.json()
 			# json.dump(newJson, file, indent=4)
 			newJson = corpus.pretty_json()
 			_ = file.write(newJson)
-
-
-
 
 
 		return []
