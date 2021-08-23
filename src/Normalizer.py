@@ -25,6 +25,8 @@ class Normalizer():
 		ab3pExpansionDictLevels = ["Document", "Corpus"]
 		ab3pDictLevel = ab3pExpansionDictLevels[1]
 		meshDictionary = ["MeSH_Dxx","SCR"]
+		outputForIndexingFilename = "outputForBaldGuy.json"
+		outputCorpusFilename = "nlm_chem_test_bioc.json"
 
 		meshDict = dict()
 		if "MeSH_D01_04" in meshDictionary:
@@ -208,11 +210,11 @@ class Normalizer():
 
 		# print(mappedDocuments)
 
-		with open("outputForBaldGuy.json", "w") as file:
+		with open(outputForIndexingFilename, "w") as file:
 			json.dump(mappedDocuments, file, indent=4)
 
 
-		with open("nlm_chem_train_bioc.json", "w") as file:
+		with open(outputCorpusFilename, "w") as file:
 			# newJson = corpus.json()
 			# json.dump(newJson, file, indent=4)
 			newJson = corpus.pretty_json()

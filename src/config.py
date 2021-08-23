@@ -15,7 +15,8 @@ NLM_CHEM = os.path.join(ROOT, 'dataset', 'NLM-CHEM')
 NLM_CHEM_GROUPS = {
             'train': os.path.join(NLM_CHEM, 'train/BC7T2-NLMChem-corpus-train.BioC.json'),
                 'dev': os.path.join(NLM_CHEM, 'train/BC7T2-NLMChem-corpus-dev.BioC.json'),
-                    'test': os.path.join(NLM_CHEM, 'train/BC7T2-NLMChem-corpus-test.BioC.json')
+                    #'test': os.path.join(NLM_CHEM, 'train/BC7T2-NLMChem-corpus-test.BioC.json')
+                    'test': os.path.join(NLM_CHEM, 'train/NLMChemCorpus_test.json')
                     #'test': os.path.join(NLM_CHEM, 'test/BC7T2-NLMChemTest-corpus_v1.BioC.json')
                     }
 
