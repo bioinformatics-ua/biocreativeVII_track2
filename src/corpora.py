@@ -8,6 +8,17 @@ import re
 from config import CDR_GROUPS
 from config import CHEMDNER_GROUPS
 from config import NLM_CHEM_GROUPS
+from config import NLM_CHEM_TEST_GROUPS
+
+from config import BC5CDR_GROUPS
+from config import BIONLP11ID_GROUPS
+from config import BIONLP13CG_GROUPS
+from config import BIONLP13PC_GROUPS
+from config import CRAFT_GROUPS
+
+from config import DRUGPROT_GROUPS
+from config import DRUGPROTFILTERED_GROUPS
+
 from elements import Collection
 from elements import Document
 from elements import IndexingIdentifier
@@ -221,6 +232,9 @@ class BaseCorpus(BaseLogger):
         for group, collection in self.collections.items():
             collection.add_metadata(self.__class__.__name__, group)
 
+    def __contains__(self, key):
+        return key in self.collections
+
     def __str__(self):
         return self.__class__.__name__
 
@@ -254,6 +268,78 @@ class NLMChemCorpus(BaseCorpus):
 
     def __init__(self):
         super().__init__(NLM_CHEM_GROUPS,
+                         ignore_non_contiguous_entities=False,
+                         ignore_normalization_identifiers=False,
+                         solve_overlapping_passages=False)
+
+
+class NLMChemTestCorpus(BaseCorpus):
+
+    def __init__(self):
+        super().__init__(NLM_CHEM_TEST_GROUPS,
+                         ignore_non_contiguous_entities=False,
+                         ignore_normalization_identifiers=False,
+                         solve_overlapping_passages=False)
+
+
+class BC5CDRCorpus(BaseCorpus):
+
+    def __init__(self):
+        super().__init__(BC5CDR_GROUPS,
+                         ignore_non_contiguous_entities=False,
+                         ignore_normalization_identifiers=False,
+                         solve_overlapping_passages=False)
+
+
+class BioNLP11IDCorpus(BaseCorpus):
+
+    def __init__(self):
+        super().__init__(BIONLP11ID_GROUPS,
+                         ignore_non_contiguous_entities=False,
+                         ignore_normalization_identifiers=False,
+                         solve_overlapping_passages=False)
+
+
+class BioNLP13CGCorpus(BaseCorpus):
+
+    def __init__(self):
+        super().__init__(BIONLP13CG_GROUPS,
+                         ignore_non_contiguous_entities=False,
+                         ignore_normalization_identifiers=False,
+                         solve_overlapping_passages=False)
+
+
+class BioNLP13PCCorpus(BaseCorpus):
+
+    def __init__(self):
+        super().__init__(BIONLP13PC_GROUPS,
+                         ignore_non_contiguous_entities=False,
+                         ignore_normalization_identifiers=False,
+                         solve_overlapping_passages=False)
+
+
+class CRAFTCorpus(BaseCorpus):
+
+    def __init__(self):
+        super().__init__(CRAFT_GROUPS,
+                         ignore_non_contiguous_entities=False,
+                         ignore_normalization_identifiers=False,
+                         solve_overlapping_passages=False)
+
+
+class DrugProtCorpus(BaseCorpus):
+
+    def __init__(self):
+        super().__init__(DRUGPROT_GROUPS,
+                         ignore_non_contiguous_entities=False,
+                         ignore_normalization_identifiers=False,
+                         solve_overlapping_passages=False)
+
+
+class DrugProtFilteredCorpus(BaseCorpus):
+
+    def __init__(self):
+        super().__init__(DRUGPROTFILTERED_GROUPS,
                          ignore_non_contiguous_entities=False,
                          ignore_normalization_identifiers=False,
                          solve_overlapping_passages=False)

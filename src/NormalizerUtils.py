@@ -3,6 +3,9 @@ import json
 import tempfile
 import subprocess
 
+# ab3P_path = "/backup/tools/NCBI/Ab3P/identify_abbr"
+ab3P_path = "/home/joaofsilva/tools/NCBI/Ab3P/identify_abbr"
+
 def dictionaryLoader(meshDictionaryTypes):
 
     meshDict = dict()
@@ -51,23 +54,29 @@ def dictionaryLoader(meshDictionaryTypes):
 
 
 
-def mapWithoutAb3P(corpus):
+def mapWithoutAb3P(corpus, meshDictionary):
 
     mappedDocuments = dict()
     mapped=0
     unmapped=0
 
     for id, document in corpus:
-        meshTupleList = set()
+        meshTupleList = list()
         for passage in document:
             for entity in passage.nes:
                 # print(entity.text, entity.identifiers)
-                #if entity.text in meshDict.keys():
-                if entity.text in meshDict.keys():
-                    meshCode = "MESH:" + meshDict[entity.text]
-                    meshTupleList.append(([meshCode], entity.span))
-                    entity.set_identifiers([meshCode])
-                    mapped+=1
+                #if entity.text in meshDictionary.keys():
+                if entity.text in meshDictionary.keys():
+                    if isinstance(meshDictionary[entity.text], list):
+                        meshCode = meshDictionary[entity.text]
+                        meshTupleList.append((meshCode, entity.span))
+                        entity.set_identifiers(meshCode)
+                        mapped+=1
+                    else:
+                        meshCode = "MESH:" + meshDictionary[entity.text]
+                        meshTupleList.append(([meshCode], entity.span))
+                        entity.set_identifiers([meshCode])
+                        mapped+=1
                 else:
                     meshTupleList.append((["-"], entity.span))
                     entity.set_identifiers(["-"])
@@ -83,8 +92,51 @@ def mapWithoutAb3P(corpus):
     return corpus, mappedDocuments
 
 
+def mapWithoutAb3P_AugmentedDictionary(corpus, meshDictionary, test=False):
 
-def mapWithAb3P(corpus, meshDictionary, ab3pDictLevel):
+    mappedDocuments = dict()
+    mapped=0
+    unmapped=0
+
+    for id, document in corpus:
+        meshTupleList = list()
+        for passage in document:
+            for entity in passage.nes:
+                # print(entity.text, entity.identifiers)
+                #if entity.text in meshDict.keys():
+                if entity.text in meshDictionary.keys():
+                    if isinstance(meshDictionary[entity.text], list):
+                        meshCode = meshDictionary[entity.text]
+                        meshTupleList.append((meshCode, entity.span))
+                        entity.set_identifiers(meshCode)
+                        mapped+=1
+                    else:
+                        meshCode = "MESH:" + meshDictionary[entity.text]
+                        meshTupleList.append(([meshCode], entity.span))
+                        entity.set_identifiers([meshCode])
+                        mapped+=1
+                else:
+                    if not test:
+                        meshDictionary[entity.text.lower()] = entity.identifiers
+                        meshTupleList.append((entity.identifiers, entity.span))
+                        entity.set_identifiers(entity.identifiers)
+                        mapped+=1
+                    else:
+                        meshTupleList.append((["-"], entity.span))
+                        entity.set_identifiers(["-"])
+                        unmapped+=1
+
+        mappedDocuments[id] = meshTupleList
+    print("Mapped entries: {}".format(mapped))
+    print("Unmapped entries: {}".format(unmapped))
+
+    return corpus, mappedDocuments, meshDictionary
+
+
+
+
+
+def mapWithAb3P(corpus, meshDictionary, ab3pDictLevel, abbreviationMap=None):
 
     mappedDocuments = dict()
     mapped=0
@@ -99,7 +151,7 @@ def mapWithAb3P(corpus, meshDictionary, ab3pDictLevel):
                 with os.fdopen(fd, 'w') as tmpFile:
                     tmpFile.write(document.text())
                     abbreviationMap = dict()
-                    process = subprocess.Popen(["/backup/tools/NCBI/Ab3P/identify_abbr", filePath], stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
+                    process = subprocess.Popen([ab3P_path, filePath], stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
                     stdout, stderr = process.communicate()
                     ab3pOutput = stdout.split("\n")
                     if len(ab3pOutput)>2:
@@ -115,17 +167,29 @@ def mapWithAb3P(corpus, meshDictionary, ab3pDictLevel):
                         for entity in passage.nes:
                             # if entity.text in meshDict.keys():
                             if entity.text.lower() in meshDictionary.keys():
-                                meshCode = "MESH:" + meshDictionary[entity.text.lower()]
-                                meshTupleList.append(([meshCode], entity.span))
-                                entity.set_identifiers([meshCode])
-                                mapped+=1
-                            elif entity.text.lower() in abbreviationMap.keys():
-                                text = abbreviationMap[entity.text.lower()]
-                                if text in meshDictionary.keys():
-                                    meshCode = "MESH:" + meshDictionary[text]
+                                if isinstance(meshDictionary[entity.text.lower()], list):
+                                    meshCode = meshDictionary[entity.text.lower()]
+                                    meshTupleList.append((meshCode, entity.span))
+                                    entity.set_identifiers(meshCode)
+                                    mapped+=1
+                                else:
+                                    meshCode = "MESH:" + meshDictionary[entity.text.lower()]
                                     meshTupleList.append(([meshCode], entity.span))
                                     entity.set_identifiers([meshCode])
                                     mapped+=1
+                            elif entity.text.lower() in abbreviationMap.keys():
+                                text = abbreviationMap[entity.text.lower()]
+                                if text in meshDictionary.keys():
+                                    if isinstance(meshDictionary[text], list):
+                                        meshCode = meshDictionary[text]
+                                        meshTupleList.append((meshCode, entity.span))
+                                        entity.set_identifiers(meshCode)
+                                        mapped+=1
+                                    else:
+                                        meshCode = "MESH:" + meshDictionary[text]
+                                        meshTupleList.append(([meshCode], entity.span))
+                                        entity.set_identifiers([meshCode])
+                                        mapped+=1
                                 else:
                                     meshTupleList.append((["-"], entity.span))
                                     entity.set_identifiers(["-"])
@@ -141,19 +205,20 @@ def mapWithAb3P(corpus, meshDictionary, ab3pDictLevel):
         print("Mapped entries: {}".format(mapped))
         print("Unmapped entries: {}".format(unmapped))
 
-        return corpus, mappedDocuments
+        return corpus, mappedDocuments, abbreviationMap
 
 
 
     # COM Ab3P a expandir abreviações, dicionário de abreviações ao nível do corpus
     elif ab3pDictLevel == "Corpus":
-        abbreviationMap = dict()
+        if abbreviationMap is None:
+            abbreviationMap = dict()
         for id, document in corpus:
             fd, filePath = tempfile.mkstemp()
             try:
                 with os.fdopen(fd, 'w') as tmpFile:
                     tmpFile.write(document.text())
-                    process = subprocess.Popen(["/backup/tools/NCBI/Ab3P/identify_abbr", filePath], stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
+                    process = subprocess.Popen([ab3P_path, filePath], stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
                     stdout, stderr = process.communicate()
                     ab3pOutput = stdout.split("\n")
                     if len(ab3pOutput)>2:
@@ -173,22 +238,35 @@ def mapWithAb3P(corpus, meshDictionary, ab3pDictLevel):
                 for entity in passage.nes:
                     # if entity.text in meshDict.keys():
                     if entity.text.lower() in meshDictionary.keys():
-                        meshCode = "MESH:" + meshDictionary[entity.text.lower()]
-                        meshTupleList.append(([meshCode], entity.span))
-                        entity.set_identifiers([meshCode])
-                        mapped+=1
-                    elif entity.text.lower() in abbreviationMap.keys():
-                        text = abbreviationMap[entity.text.lower()]
-                        if text in meshDictionary.keys():
-                            meshCode = "MESH:" + meshDictionary[text]
+                        if isinstance(meshDictionary[entity.text.lower()], list):
+                            meshCode = meshDictionary[entity.text.lower()]
+                            meshTupleList.append((meshCode, entity.span))
+                            entity.set_identifiers(meshCode)
+                            mapped+=1
+                        else:
+                            meshCode = "MESH:" + meshDictionary[entity.text.lower()]
                             meshTupleList.append(([meshCode], entity.span))
                             entity.set_identifiers([meshCode])
                             mapped+=1
+                    elif entity.text.lower() in abbreviationMap.keys():
+                        text = abbreviationMap[entity.text.lower()]
+                        if text in meshDictionary.keys():
+                            if isinstance(meshDictionary[text], list):
+                                meshCode = meshDictionary[text]
+                                meshTupleList.append((meshCode, entity.span))
+                                entity.set_identifiers(meshCode)
+                                mapped+=1
+                            else:
+                                meshCode = "MESH:" + meshDictionary[text]
+                                meshTupleList.append(([meshCode], entity.span))
+                                entity.set_identifiers([meshCode])
+                                mapped+=1
                         else:
                             meshTupleList.append((["-"], entity.span))
                             entity.set_identifiers(["-"])
                             unmapped+=1
                     else:
+                        print("wtf how")
                         meshTupleList.append((["-"], entity.span))
                         entity.set_identifiers(["-"])
                         unmapped+=1
@@ -197,4 +275,170 @@ def mapWithAb3P(corpus, meshDictionary, ab3pDictLevel):
         print("Mapped entries: {}".format(mapped))
         print("Unmapped entries: {}".format(unmapped))
 
-        return corpus, mappedDocuments
+        return corpus, mappedDocuments, abbreviationMap
+
+
+
+def mapWithAb3P_AugmentedDictionary(corpus, meshDictionary, ab3pDictLevel, abbreviationMap=None, test=False):
+
+    mappedDocuments = dict()
+    mapped=0
+    unmapped=0
+
+    # COM Ab3P a expandir abreviações, dicionário de abreviações ao nível do documento
+    if ab3pDictLevel == "Document":
+        for id, document in corpus:
+            meshTupleList = list()
+            fd, filePath = tempfile.mkstemp()
+            try:
+                with os.fdopen(fd, 'w') as tmpFile:
+                    tmpFile.write(document.text())
+                    abbreviationMap = dict()
+                    process = subprocess.Popen([ab3P_path, filePath], stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
+                    stdout, stderr = process.communicate()
+                    ab3pOutput = stdout.split("\n")
+                    if len(ab3pOutput)>2:
+                        ab3pOutput = ab3pOutput[1:-1]
+                        for abbreviation in ab3pOutput:
+                            try:
+                                abbreviation, longForm, confidenceScore = abbreviation.strip().split("|")
+                                abbreviationMap[abbreviation.lower()] = longForm.lower()
+                            except ValueError:
+                                pass
+
+                    for passage in document:
+                        for entity in passage.nes:
+                            # if entity.text in meshDict.keys():
+                            if entity.text.lower() in meshDictionary.keys():
+                                if isinstance(meshDictionary[entity.text.lower()], list):
+                                    meshCode = meshDictionary[entity.text.lower()]
+                                    meshTupleList.append((meshCode, entity.span))
+                                    entity.set_identifiers(meshCode)
+                                    mapped+=1
+                                else:
+                                    meshCode = "MESH:" + meshDictionary[entity.text.lower()]
+                                    meshTupleList.append(([meshCode], entity.span))
+                                    entity.set_identifiers([meshCode])
+                                    mapped+=1
+                            elif entity.text.lower() in abbreviationMap.keys():
+                                text = abbreviationMap[entity.text.lower()]
+                                if text in meshDictionary.keys():
+                                    if isinstance(meshDictionary[text], list):
+                                        meshCode = meshDictionary[text]
+                                        meshTupleList.append((meshCode, entity.span))
+                                        entity.set_identifiers(meshCode)
+                                        mapped+=1
+                                    else:
+                                        meshCode = "MESH:" + meshDictionary[text]
+                                        meshTupleList.append(([meshCode], entity.span))
+                                        entity.set_identifiers([meshCode])
+                                        mapped+=1
+                                else:
+                                    if not test:
+                                        meshDictionary[entity.text.lower()] = entity.identifiers
+                                        meshTupleList.append((entity.identifiers, entity.span))
+                                        entity.set_identifiers(entity.identifiers)
+                                        mapped+=1
+                                    else:
+                                        meshTupleList.append((["-"], entity.span))
+                                        entity.set_identifiers(["-"])
+                                        unmapped+=1
+                            else:
+                                if not test:
+                                    meshDictionary[entity.text.lower()] = entity.identifiers
+                                    meshTupleList.append((entity.identifiers, entity.span))
+                                    entity.set_identifiers(entity.identifiers)
+                                    mapped+=1
+                                else:
+                                    meshTupleList.append((["-"], entity.span))
+                                    entity.set_identifiers(["-"])
+                                    unmapped+=1
+            finally:
+                os.remove(filePath)
+
+            mappedDocuments[id] = meshTupleList
+        print("Mapped entries: {}".format(mapped))
+        print("Unmapped entries: {}".format(unmapped))
+
+        return corpus, mappedDocuments, meshDictionary, abbreviationMap
+
+
+
+    # COM Ab3P a expandir abreviações, dicionário de abreviações ao nível do corpus
+    elif ab3pDictLevel == "Corpus":
+        if abbreviationMap is None:
+            abbreviationMap = dict()
+        for id, document in corpus:
+            fd, filePath = tempfile.mkstemp()
+            try:
+                with os.fdopen(fd, 'w') as tmpFile:
+                    tmpFile.write(document.text())
+                    process = subprocess.Popen([ab3P_path, filePath], stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
+                    stdout, stderr = process.communicate()
+                    ab3pOutput = stdout.split("\n")
+                    if len(ab3pOutput)>2:
+                        ab3pOutput = ab3pOutput[1:-1]
+                        for abbreviation in ab3pOutput:
+                            try:
+                                abbreviation, longForm, confidenceScore = abbreviation.strip().split("|")
+                                abbreviationMap[abbreviation.lower()] = longForm.lower()
+                            except ValueError:
+                                pass
+            finally:
+                os.remove(filePath)
+
+        for id, document in corpus:
+            meshTupleList = list()
+            for passage in document:
+                for entity in passage.nes:
+                    # if entity.text in meshDict.keys():
+                    if entity.text.lower() in meshDictionary.keys():
+                        if isinstance(meshDictionary[entity.text.lower()], list):
+                            meshCode = meshDictionary[entity.text.lower()]
+                            meshTupleList.append((meshCode, entity.span))
+                            entity.set_identifiers(meshCode)
+                            mapped+=1
+                        else:
+                            meshCode = "MESH:" + meshDictionary[entity.text.lower()]
+                            meshTupleList.append(([meshCode], entity.span))
+                            entity.set_identifiers([meshCode])
+                            mapped+=1
+                    elif entity.text.lower() in abbreviationMap.keys():
+                        text = abbreviationMap[entity.text.lower()]
+                        if text in meshDictionary.keys():
+                            if isinstance(meshDictionary[text], list):
+                                meshCode = meshDictionary[text]
+                                meshTupleList.append((meshCode, entity.span))
+                                entity.set_identifiers(meshCode)
+                                mapped+=1
+                            else:
+                                meshCode = "MESH:" + meshDictionary[text]
+                                meshTupleList.append(([meshCode], entity.span))
+                                entity.set_identifiers([meshCode])
+                                mapped+=1
+                        else:
+                            if not test:
+                                meshDictionary[entity.text.lower()] = entity.identifiers
+                                meshTupleList.append((entity.identifiers, entity.span))
+                                entity.set_identifiers(entity.identifiers)
+                                mapped+=1
+                            else:
+                                meshTupleList.append((["-"], entity.span))
+                                entity.set_identifiers(["-"])
+                                unmapped+=1
+                    else:
+                        if not test:
+                            meshDictionary[entity.text.lower()] = entity.identifiers
+                            meshTupleList.append((entity.identifiers, entity.span))
+                            entity.set_identifiers(entity.identifiers)
+                            mapped+=1
+                        else:
+                            meshTupleList.append((["-"], entity.span))
+                            entity.set_identifiers(["-"])
+                            unmapped+=1
+
+            mappedDocuments[id] = meshTupleList
+        print("Mapped entries: {}".format(mapped))
+        print("Unmapped entries: {}".format(unmapped))
+
+        return corpus, mappedDocuments, meshDictionary, abbreviationMap

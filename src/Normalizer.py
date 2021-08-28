@@ -1,5 +1,5 @@
-from corpora import NLMChemCorpus#, CDRCorpus, CHEMDNERCorpus
-from NormalizerUtils import dictionaryLoader, mapWithoutAb3P, mapWithAb3P
+from corpora import NLMChemCorpus, NLMChemTestCorpus #, CDRCorpus, CHEMDNERCorpus
+from NormalizerUtils import dictionaryLoader, mapWithoutAb3P, mapWithoutAb3P_AugmentedDictionary, mapWithAb3P, mapWithAb3P_AugmentedDictionary
 from elements import merge_collections
 
 import json
@@ -11,17 +11,35 @@ class Normalizer():
 
 		test = True
 
+#
+#
+# SETTING IMPORTANT VARIABLES TO DECIDE WHAT PIPELINE SHOULD BE USED
+#
+#
+		dictionaryDatasetAugmentation = True
 		ab3pAbbreviationExpansion = True
+
 		ab3pExpansionDictLevels = ["Document", "Corpus"]
 		ab3pDictLevel = ab3pExpansionDictLevels[1]
 		meshDictionaries = ["MeSH_Dxx","SCR"]
+
 		outputForIndexingFilename = "outputForBaldGuy.json"
 		outputCorpusFilename = "nlm_chem_test_bioc.json"
+
+
+#
+#
+# FINISHED SETTING VARIABLES
+#
+#
 
 		trainNLMCorpus = NLMChemCorpus()
 		trainCollection = trainNLMCorpus["train"]
 		devCollection   = trainNLMCorpus["dev"]
 		testCollection  = trainNLMCorpus["test"]
+
+		testNLMCorpus = NLMChemTestCorpus()
+		trueTestCollection = testNLMCorpus["test"]
 
 
 		meshDictionary = dictionaryLoader(meshDictionaries)
@@ -29,14 +47,22 @@ class Normalizer():
 		if not test:
 			trainCorpus = merge_collections(trainCollection, devCollection)
 			testCorpus  = testCollection
+		else:
+			trainCorpus = merge_collections(trainCollection, devCollection, testCollection)
+			testCorpus  = trueTestCollection
 
-			# trainCorpus, mappedDocuments = mapWithoutAb3P(trainCorpus)
-			trainCorpus, mappedDocuments = mapWithAb3P(trainCorpus, meshDictionary, ab3pDictLevel)
+
+		if ab3pAbbreviationExpansion:
+			if dictionaryDatasetAugmentation:
+				_, _, meshDictionary, abbreviationMap = mapWithAb3P_AugmentedDictionary(trainCorpus, meshDictionary, ab3pDictLevel, test=False)
+			else:
+				_, _, abbreviationMap = mapWithAb3P(trainCorpus, meshDictionary, ab3pDictLevel)
+			testCorpus, mappedDocuments, _ = mapWithAb3P(testCorpus, meshDictionary, ab3pDictLevel, abbreviationMap)
 
 		else:
-			# trainCorpus = merge_collections(trainCollection, devCollection, testCollection)
-			testCorpus = testCollection
-			testCorpus, mappedDocuments = mapWithAb3P(testCorpus, meshDictionary, ab3pDictLevel)
+			if dictionaryDatasetAugmentation:
+				_, _, meshDictionary = mapWithoutAb3P_AugmentedDictionary(trainCorpus, meshDictionary, test=False)
+			testCorpus, mappedDocuments = mapWithoutAb3P(testCorpus, meshDictionary)
 
 
 
@@ -52,3 +78,4 @@ class Normalizer():
 		return []
 
 #python3 ./evaluation/evaluate.py --reference_path ../dataset/NLM-CHEM/train/BC7T2-NLMChem-corpus-train.BioC.json --prediction_path ./nlm_chem_train_bioc.json --evaluation_type identifier --evaluation_method strict --annotation_type Chemical
+#python3 ./evaluation/evaluate.py --reference_path ../dataset/NLM-CHEM/train/BC7T2-NLMChem-corpus-test.BioC.json --prediction_path ./nlm_chem_test_bioc.json --evaluation_type identifier --evaluation_method strict --annotation_type Chemical
