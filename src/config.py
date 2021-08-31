@@ -15,8 +15,19 @@ NLM_CHEM = os.path.join(ROOT, 'dataset', 'NLM-CHEM')
 NLM_CHEM_GROUPS = {
             'train': os.path.join(NLM_CHEM, 'train/BC7T2-NLMChem-corpus-train.BioC.json'),
                 'dev': os.path.join(NLM_CHEM, 'train/BC7T2-NLMChem-corpus-dev.BioC.json'),
-                    'test': os.path.join(NLM_CHEM, 'test/BC7T2-NLMChemTest-corpus_v1.BioC.json')
+                    'test': os.path.join(NLM_CHEM, 'train/BC7T2-NLMChem-corpus-test.BioC.json')
                     }
+
+NLM_CHEM_TEST = os.path.join(ROOT, 'dataset', 'NLM-CHEM')
+
+NLM_CHEM_TEST_GROUPS = {
+    #'test': os.path.join(NLM_CHEM_TEST, 'test/BC7T2-NLMChemTest-corpus.BioC.json')
+    #'test': os.path.join(NLM_CHEM_TEST, 'test/Track2-Team-110-Subtask1-Run-1.json')
+    #'test': os.path.join(NLM_CHEM_TEST, 'test/Track2-Team-110-Subtask1-Run-2.json')
+    'test': os.path.join(NLM_CHEM_TEST, 'test/Track2-Team-110-Subtask1-Run-3.json')
+}
+
+NLM_CHEM_TEST_PMCID_PMID = os.path.join(NLM_CHEM_TEST, 'test/BC7T2-NLMChemTest-ids.tsv')
 
 CDR = os.path.join(ROOT, 'local', 'datasets', 'CDR')
 

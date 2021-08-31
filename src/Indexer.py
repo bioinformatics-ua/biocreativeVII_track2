@@ -1,25 +1,27 @@
-from corpora import NLMChemCorpus#, CDRCorpus, CHEMDNERCorpus
+from corpora import NLMChemCorpus, NLMChemTestCorpus#, CDRCorpus, CHEMDNERCorpus
 
 PERCENTAGE = 1
-MIN_OCCUR_CAPTIONS = 25 * PERCENTAGE
-MIN_OCCUR_ABSTRACT = 10 * PERCENTAGE
-MIN_OCCUR_TITLE = 50 * PERCENTAGE
+MIN_OCCUR_CAPTIONS = 0.2 * PERCENTAGE
+MIN_OCCUR_ABSTRACT = 0.07 * PERCENTAGE
+MIN_OCCUR_TITLE = 0.1 * PERCENTAGE
 
 #evaluator
 #python3 ./evaluation/evaluate.py --reference_path ../dataset/NLM-CHEM/train/BC7T2-NLMChem-corpus-train.BioC.json --prediction_path ./nlm_index_chem_train_bioc.json --evaluation_type identifier --evaluation_method strict --annotation_type MeSH_Indexing_Chemical
 
 class Indexer():
 	def index(mesh, test=False):
-		corpus = NLMChemCorpus()
-		if test:
+		if True: #test:
+			corpus = NLMChemTestCorpus()
 			corpus = corpus["test"]
-		else:
-			corpus = corpus["train"]
-			mesh = Indexer.readGoldStandard(corpus)
+		#else:
+		#	corpus = NLMChemCorpus()
+		#	corpus = corpus["train"]
+		#	print(corpus)
+		#	mesh = Indexer.readGoldStandard(corpus)
 
 		corpusWithScores = Indexer.getScores(corpus, mesh, Indexer.getDicts(corpus))
 
-		with open("nlm_index_chem_train_bioc.json", "w") as file:
+		with open("Track2-Team-110-Subtask1-Indexing-Run-3.json", "w") as file:
 			newJson = corpusWithScores.pretty_json()
 			_ = file.write(newJson)
 
@@ -29,8 +31,10 @@ class Indexer():
 		abstracts = dicts["abstracts"]
 
 		countMeshes = {}
+		countAllMeshesByDoc = {}
 		for id in meshes:
 			countMeshes[id] = {}
+			countAllMeshesByDoc[id] = 0
 			for x in meshes[id]:
 				mesh = x[0][0]
 				if mesh == "-":
@@ -38,6 +42,7 @@ class Indexer():
 				if mesh not in countMeshes[id]:
 					countMeshes[id][mesh] = 0
 				countMeshes[id][mesh] += 1
+				countAllMeshesByDoc[id] += 1
 
 		for id in meshes:
 			meshesToAdd = set()
@@ -53,20 +58,20 @@ class Indexer():
 				for sec in sections[id]:
 					if spanStart > sections[id][sec][0] and spanEnd < sections[id][sec][1]:
 						#mesh in title
-						if countMeshes[id][mesh] > MIN_OCCUR_TITLE:
+						if countMeshes[id][mesh]/countAllMeshesByDoc[id] > MIN_OCCUR_TITLE:
 							meshesToAdd.add(mesh)
 
 				#Check if mesh is in a caption
 				for sec in captions[id]:
 					if spanStart > captions[id][sec][0] and spanEnd < captions[id][sec][1]:
 						#mesh in caption
-						if countMeshes[id][mesh] > MIN_OCCUR_CAPTIONS:
+						if countMeshes[id][mesh]/countAllMeshesByDoc[id] > MIN_OCCUR_CAPTIONS:
 							meshesToAdd.add(mesh)
 
 				#Check if is in abstract
 				for sec in abstracts[id]:
 					if spanStart > abstracts[id][sec][0] and spanEnd < abstracts[id][sec][1]:
-						if countMeshes[id][mesh] > MIN_OCCUR_ABSTRACT:
+						if countMeshes[id][mesh]/countAllMeshesByDoc[id] > MIN_OCCUR_ABSTRACT:
 							meshesToAdd.add(mesh)
 
 
