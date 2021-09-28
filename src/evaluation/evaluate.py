@@ -105,6 +105,7 @@ def get_annotations_from_JSON(input_collection, input_filename, eval_config):
 						annotation = identifier_annotation(document["id"], type, identifier)
 						#log.debug("BioCJSON file {} identifier annotation {}".format(input_filename, str(annotation)))
 						annotation_set.add(annotation)
+						###print(annotation_set)
 	return annotation_set, passage_text_dict
 			
 def get_annotations_from_file(input_filename, eval_config):
@@ -147,6 +148,40 @@ def get_annotations_from_path(input_path, eval_config):
 def calculate_evaluation_count(reference_annotations, predicted_annotations):
 	reference_annotations = set(reference_annotations)
 	predicted_annotations = set(predicted_annotations)
+
+	referenceByDoc = {}
+	for a1 in reference_annotations:
+		if a1.document_id not in referenceByDoc:
+			referenceByDoc[a1.document_id] = []
+		referenceByDoc[a1.document_id].append(a1.identifier)
+
+	predictedByDoc = {}
+	for a1 in predicted_annotations:
+		if a1.document_id not in predictedByDoc:
+			predictedByDoc[a1.document_id] = []
+		predictedByDoc[a1.document_id].append(a1.identifier)
+		
+	if False:
+		#Ver o que falta
+		for doc in referenceByDoc:
+			print("\nReference")
+			print(doc, referenceByDoc[doc])
+			if doc in predictedByDoc:
+				print("Predicted")
+				print(doc, predictedByDoc[doc])
+
+
+		print("\n\n")
+		#Ver o lixo que anotei
+		for doc in predictedByDoc:
+			print("\nPredicted")
+			print(doc, predictedByDoc[doc])
+			if doc in referenceByDoc:
+				print("Reference")
+				print(doc, referenceByDoc[doc])
+
+
+
 	annotations = set()
 	annotations.update(reference_annotations)
 	annotations.update(predicted_annotations)
@@ -298,6 +333,7 @@ if __name__ == "__main__":
 			log.info("Argument {0}: {1}".format(arg, value))
 
 	eval_config = evaluation_config(annotation_type, evaluation_type)
+	#Here MeSH_Indexing_Chemical
 	reference_annotations, reference_passages = get_annotations_from_path(args.reference_path, eval_config)
 	predicted_annotations, predicted_passages = get_annotations_from_path(args.prediction_path, eval_config)
 	if args.verify_documents:
