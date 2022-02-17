@@ -39,6 +39,19 @@ NLM_CHEM_TEST_GROUPS = {
 NLM_CHEM_TEST_PMCID_PMID = os.path.join(NLM_CHEM_TEST, 'test/BC7T2-NLMChemTest-ids_v1.tsv')
 
 
+NLM_CHEM_TEST_ANN_GROUPS = {
+    'test': os.path.join(NLM_CHEM_TEST, 'test/BC7T2-NLMChemTest-annotated_v1.BioC.json')
+}
+
+NLM_CHEM_TEST_ANN_PMCID_PMID = os.path.join(NLM_CHEM_TEST, 'test/nlmchemtestann_pmcid_pmid.tsv')
+
+
+NLM_CHEM_TEST_IND_GROUPS = {
+    'test': os.path.join(NLM_CHEM_TEST, 'test/BC7T2-NLMChemTest-indexed_v1.BioC.json')
+}
+
+#NLM_CHEM_TEST_IND_PMCID_PMID = os.path.join(NLM_CHEM_TEST_IND, 'nlmchemtestind_pmcid_pmid.tsv')
+
 
 
 #

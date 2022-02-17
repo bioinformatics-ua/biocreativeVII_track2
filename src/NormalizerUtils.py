@@ -3,8 +3,7 @@ import json
 import tempfile
 import subprocess
 
-# ab3P_path = "/backup/tools/NCBI/Ab3P/identify_abbr"
-ab3P_path = "/home/joaofsilva/tools/NCBI/Ab3P/identify_abbr"
+ab3P_path = "/backup/tools/NCBI/Ab3P/identify_abbr"
 
 def dictionaryLoader(meshDictionaryTypes):
 
@@ -266,7 +265,6 @@ def mapWithAb3P(corpus, meshDictionary, ab3pDictLevel, abbreviationMap=None):
                             entity.set_identifiers(["-"])
                             unmapped+=1
                     else:
-                        print("wtf how")
                         meshTupleList.append((["-"], entity.span))
                         entity.set_identifiers(["-"])
                         unmapped+=1

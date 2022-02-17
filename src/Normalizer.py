@@ -8,8 +8,8 @@ import json
 
 class Normalizer():
 	def normalize(annotations, goldStandard, test=False):
-
-		test = True
+		if test:
+			print("\nRunning the normalization pipeline on the test corpus.\n")
 
 #
 #
@@ -83,4 +83,5 @@ class Normalizer():
 #python3 ./evaluation/evaluate.py --reference_path ../dataset/NLM-CHEM/train/BC7T2-NLMChem-corpus-test.BioC.json --prediction_path ./nlm_chem_test_bioc.json --evaluation_type identifier --evaluation_method strict --annotation_type Chemical
 
 ## TRUE TEST EVALUATION
+#python3 ./scripts-rui/filter_run_for_chemical_identification_evaluation_on_final_test.py nlm_chem_test_bioc.json
 #python3 ./evaluation/evaluate.py --reference_path ../dataset/NLM-CHEM/test/BC7T2-NLMChemTest-annotated_v1.BioC.json --prediction_path ./nlm_chem_test_bioc.json --evaluation_type identifier --evaluation_method strict --annotation_type Chemical
