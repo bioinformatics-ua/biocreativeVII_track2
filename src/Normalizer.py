@@ -21,6 +21,7 @@ class Normalizer():
 
 		ab3pExpansionDictLevels = ["Document", "Corpus"]
 		ab3pDictLevel = ab3pExpansionDictLevels[1]
+
 		meshDictionaries = ["MeSH_Dxx","SCR"]
 
 		outputForIndexingFilename = "outputForBaldGuy.json"
@@ -77,5 +78,9 @@ class Normalizer():
 
 		return []
 
+## DEVELOPMENT EVALUATION
 #python3 ./evaluation/evaluate.py --reference_path ../dataset/NLM-CHEM/train/BC7T2-NLMChem-corpus-train.BioC.json --prediction_path ./nlm_chem_train_bioc.json --evaluation_type identifier --evaluation_method strict --annotation_type Chemical
 #python3 ./evaluation/evaluate.py --reference_path ../dataset/NLM-CHEM/train/BC7T2-NLMChem-corpus-test.BioC.json --prediction_path ./nlm_chem_test_bioc.json --evaluation_type identifier --evaluation_method strict --annotation_type Chemical
+
+## TRUE TEST EVALUATION
+#python3 ./evaluation/evaluate.py --reference_path ../dataset/NLM-CHEM/test/BC7T2-NLMChemTest-annotated_v1.BioC.json --prediction_path ./nlm_chem_test_bioc.json --evaluation_type identifier --evaluation_method strict --annotation_type Chemical

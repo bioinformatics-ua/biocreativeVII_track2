@@ -32,7 +32,8 @@ NLM_CHEM_PMCID_PMID = os.path.join(NLM_CHEM, 'train/nlmchem_pmcid_pmid.tsv')
 NLM_CHEM_TEST = os.path.join(ROOT, 'dataset', 'NLM-CHEM')
 
 NLM_CHEM_TEST_GROUPS = {
-    'test': os.path.join(NLM_CHEM_TEST, 'test/BC7T2-NLMChemTest-corpus.BioC.json')
+    #'test': os.path.join(NLM_CHEM_TEST, 'test/BC7T2-NLMChemTest-corpus.BioC.json')
+    'test': os.path.join(NLM_CHEM_TEST, 'test/deft-blaze-4-run-NLMChemTestCorpus_test.json') 
 }
 
 NLM_CHEM_TEST_PMCID_PMID = os.path.join(NLM_CHEM_TEST, 'test/BC7T2-NLMChemTest-ids_v1.tsv')
