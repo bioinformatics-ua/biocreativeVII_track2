@@ -1,13 +1,15 @@
 from corpora import NLMChemCorpus, NLMChemTestCorpus#, CDRCorpus, CHEMDNERCorpus
+from elements import merge_collections
 
 PERCENTAGE = 1 #aumentar, requer mais conceitos anotados
 MIN_OCCUR_CAPTIONS = 0.16 * PERCENTAGE
 MIN_OCCUR_ABSTRACT = 0.17 * PERCENTAGE
 MIN_OCCUR_TITLE = 0.06 * PERCENTAGE #best 0.06
 MIN_OCCUR_CONCL = 0.06 * PERCENTAGE #best 0.06
+
 METHOD = 1
 
-#evaluator
+#evaluator for dataset train
 #python3 ./evaluation/evaluate.py --reference_path ../dataset/NLM-CHEM/train/BC7T2-NLMChem-corpus-train.BioC.json --prediction_path ../results/train.json --evaluation_type identifier --evaluation_method strict --annotation_type MeSH_Indexing_Chemical
 
 #dev
@@ -17,16 +19,24 @@ METHOD = 1
 #python3 main.py -i && python3 ./evaluation/evaluate.py --reference_path ../dataset/NLM-CHEM/train/BC7T2-NLMChem-corpus-test.BioC.json --prediction_path ../results/train.json --evaluation_type identifier --evaluation_method strict --annotation_type MeSH_Indexing_Chemical
 
 
+#evaluator for dataset test
+#python3 main.py -i && python3 ./evaluation/evaluate.py --reference_path ../dataset/NLM-CHEM/test/BC7T2-NLMChemTest-indexed_v1.BioC.json --prediction_path ../results/test.json --evaluation_type identifier --evaluation_method strict --annotation_type MeSH_Indexing_Chemical
+
+
+
 class Indexer():
 	def index(mesh, test=False):
 		fileName = "train.json"
 		if True: #test:
 			corpus = NLMChemTestCorpus()
 			corpus = corpus["test"]
-			fileName = "Track2-Team-110-Subtask2-Indexing-Run-{}.json".format(4)
+			fileName = "test.json"
 		else:
 			corpus = NLMChemCorpus()
+			#trainCollection = corpus["train"]
+			#devCollection   = corpus["dev"]
 			corpus = corpus["train"]
+			#corpus = merge_collections(trainCollection, devCollection)
 			print(corpus)
 			mesh = Indexer.readGoldStandard(corpus)
 
