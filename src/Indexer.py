@@ -12,6 +12,10 @@ METHOD = 1
 #evaluator for dataset train
 #python3 ./evaluation/evaluate.py --reference_path ../dataset/NLM-CHEM/train/BC7T2-NLMChem-corpus-train.BioC.json --prediction_path ../results/train.json --evaluation_type identifier --evaluation_method strict --annotation_type MeSH_Indexing_Chemical
 
+#train_dev
+#python3 main.py -i && python3 ./evaluation/evaluate.py --reference_path ../dataset/NLM-CHEM/train/BC7T2-NLMChem-corpus-train-dev.BioC.json --prediction_path ../results/train_dev.json --evaluation_type identifier --evaluation_method strict --annotation_type MeSH_Indexing_Chemical
+
+
 #train
 #python3 main.py -i && python3 ./evaluation/evaluate.py --reference_path ../dataset/NLM-CHEM/train/BC7T2-NLMChem-corpus-train.BioC.json --prediction_path ../results/train_train.json --evaluation_type identifier --evaluation_method strict --annotation_type MeSH_Indexing_Chemical
 
@@ -28,25 +32,32 @@ METHOD = 1
 
 
 class Indexer():
-	def index(mesh, test=False):
-		if False: #test:
+	def index(mesh, train_test=None, test=None):
+		if test: #test:
 			corpus = NLMChemTestCorpus()
 			corpus = corpus["test"]
 			fileName = "test.json"
-			Indexer.process(fileName, corpus, mesh)
+			#mesh are read from annotations (JS provide me)
+		elif train_test:
+			corpus 		= NLMChemCorpus()
+			corpus 		= corpus["test"]
+			fileName 	= "train_test.json"
+			mesh 		= Indexer.readGoldStandard(corpus)
+			#...
 		else:
-			for datasetBranch in ["train", "dev", "test"]:
-				corpus = NLMChemCorpus()
-				corpus = corpus[datasetBranch]
-				fileName = "train_{}.json".format(datasetBranch)
-				mesh = Indexer.readGoldStandard(corpus)
-				Indexer.process(fileName, corpus, mesh)
+			trainNLMCorpus 	= NLMChemCorpus()
+			trainCollection = trainNLMCorpus["train"]
+			devCollection   = trainNLMCorpus["dev"]
+			corpus 			= merge_collections(trainCollection, devCollection)
+			fileName 		= "train_dev.json"
+			mesh 			= Indexer.readGoldStandard(corpus)
+
+		Indexer.process(fileName, corpus, mesh)
 
 	def process(fileName, corpus, mesh):
-		corpusWithScores = Indexer.getScores(corpus, mesh, Indexer.getDicts(corpus))
-
+		corpusIndexed = Indexer.getScores(corpus, mesh, Indexer.getDicts(corpus))
 		with open("../results/{}".format(fileName), "w") as file:
-			newJson = corpusWithScores.pretty_json()
+			newJson = corpusIndexed.pretty_json()
 			_ = file.write(newJson)
 
 	def getScores(corpus, meshes, dicts):

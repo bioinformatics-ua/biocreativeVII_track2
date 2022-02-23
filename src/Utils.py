@@ -1,22 +1,3 @@
-class Utils():
-	def readFiles():
-		return None,None
-
-	def readAnnotations():
-		return []
-
-	def readMesh(meshFileLocation):
-		import json
-		f = open(meshFileLocation,)
-		data = json.load(f)
-		f.close()
-		return data
-		
-	def buildIndentificationSubmission(indentifiedChemicals):
-		print("Write file")
-		
-	def buildIndexingSubmission(indexedChemicals):
-		print("Write file")
 
 
 # From Rui Antunes utils.py
