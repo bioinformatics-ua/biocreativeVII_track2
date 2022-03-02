@@ -8,6 +8,14 @@
 
 <h4 align="center">Track 2 - NLM-CHEM track Full-text Chemical Identification and Indexing in PubMed articles</h4>
 
+### Installation
+
+It is recommended to execute the `setup.sh` file in order to install all of the dependencies and download the official datasets. By default the script will use the python3.6. However, if not installed, you can try with another version but it is required to change the setup.sh to that specific version (line 94).
+
+```
+./setup.sh
+```
+
 ### Documentation
 
 to do

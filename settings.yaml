@@ -1,0 +1,12 @@
+## configuration file for setup all of the pipeline modules
+
+annotator:
+    # path the a trainable model checkpoint, this model will be used during inference
+    model-checkpoint: "model_checkpoint/"
+    
+normalizer:
+
+indexer:
+
+
+

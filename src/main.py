@@ -1,5 +1,6 @@
 import argparse
-import configparser
+import yaml
+
 from Utils import Utils
 from Annotator import Annotator
 from Normalizer import Normalizer
@@ -7,6 +8,8 @@ from Indexer import Indexer
 
 def help(show=False):
 	parser = argparse.ArgumentParser(description="")
+    parser.add_argument('inference_folder', type=str, default="Path to the folder that contains the documents (in BioC format) to be processed")
+    
 	configs = parser.add_argument_group('Global settings', 'This settings are related with the location of the files and directories.')
 	configs.add_argument('-s', '--settings', dest='settings', \
 						type=str, default="File with settings (default: settings.ini)", \
@@ -29,11 +32,9 @@ def help(show=False):
 	return parser.parse_args()
 
 def readSettings(settingsFile):
-	configuration = configparser.ConfigParser()
-	configuration.read(settingsFile)
-	if not configuration:
-		raise Exception("The settings file was not found!")
-	return configuration
+
+    with open(settingsFile) as f:
+        return yaml.save_load(f)
 
 def main():
 	args = help()
