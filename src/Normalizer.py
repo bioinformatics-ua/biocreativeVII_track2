@@ -85,3 +85,6 @@ class Normalizer():
 ## TRUE TEST EVALUATION
 #python3 ./scripts-rui/filter_run_for_chemical_identification_evaluation_on_final_test.py nlm_chem_test_bioc.json
 #python3 ./evaluation/evaluate.py --reference_path ../dataset/NLM-CHEM/test/BC7T2-NLMChemTest-annotated_v1.BioC.json --prediction_path ./nlm_chem_test_bioc.json --evaluation_type identifier --evaluation_method strict --annotation_type Chemical
+
+## Run normalization in test corpus
+# python3 main.py -n -t

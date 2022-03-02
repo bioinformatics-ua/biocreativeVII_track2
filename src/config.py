@@ -33,7 +33,7 @@ NLM_CHEM_TEST = os.path.join(ROOT, 'dataset', 'NLM-CHEM')
 
 NLM_CHEM_TEST_GROUPS = {
     #'test': os.path.join(NLM_CHEM_TEST, 'test/BC7T2-NLMChemTest-corpus.BioC.json')
-    'test': os.path.join(NLM_CHEM_TEST, 'test/deft-blaze-4-run-NLMChemTestCorpus_test.json') 
+    'test': os.path.join(NLM_CHEM_TEST, 'test/worthy-pine-23-last prime-leaf-30-last grateful-elevator-29-last olive-water-25-last sandy-dawn-24-lastNLMChemTestCorpus_test.json') 
 }
 
 NLM_CHEM_TEST_PMCID_PMID = os.path.join(NLM_CHEM_TEST, 'test/BC7T2-NLMChemTest-ids_v1.tsv')
