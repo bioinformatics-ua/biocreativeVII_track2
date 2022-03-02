@@ -1,2 +1,6 @@
 dataset/*
 !dataset/README.md
+*.DS_Store
+*.pyc
+results/*
+src/*.json

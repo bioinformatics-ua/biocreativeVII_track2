@@ -28,6 +28,8 @@ def help(show=False):
 							help='In this mode, the script will work using the test dataset(default: False)')
 	executionMode.add_argument('-tt', '--ttest', default=False, action='store_true', \
 							help='In this mode, the script will work using test partition from training dataset(default: False)')
+	executionMode.add_argument('-st', '--study', default=False, action='store_true', \
+							help='In this mode, the script will change the rules weights (default: False)')
 	
 	if show:
 		parser.print_help()
@@ -69,7 +71,7 @@ def main():
 
 	if args.indexing:
 		readMeshList = Utils.readMesh(settings["files"]["mesh"])
-		Indexer.index(mesh=readMeshList, train_test=args.ttest, test=args.test)
+		Indexer.index(mesh=readMeshList, train_test=args.ttest, test=args.test, study=args.study)
 
 	if args.merging:
 		Utils.merge(settings["datasets"]["train"])

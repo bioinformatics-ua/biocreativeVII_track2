@@ -26,7 +26,11 @@ NLM_CHEM_TEST_GROUPS = {
     #'test': os.path.join(NLM_CHEM_TEST, 'test/Track2-Team-110-Subtask1-Run-2.json')
     #'test': os.path.join(NLM_CHEM_TEST, 'test/Track2-Team-110-Subtask1-Run-5.json')
     #'test': os.path.join(NLM_CHEM_TEST, 'test/Track2-Team-110-Subtask1-Run-4.json')
-    'test': os.path.join(NLM_CHEM_TEST, 'test/1_deft-blaze_nlm_chem_test_bioc.json')
+    #'test': os.path.join(NLM_CHEM_TEST, 'test/1_deft-blaze_nlm_chem_test_bioc.json')
+    #'test': os.path.join(NLM_CHEM_TEST, 'test/2_mild-water_nlm_chem_test_bioc.json')
+    #'test': os.path.join(NLM_CHEM_TEST, 'test/3_ensemble_nlm_chem_test_bioc.json')
+    'test': os.path.join(NLM_CHEM_TEST, 'test/embedding_plus_rules_3_ensemble_nlm_chem_test_bioc.json')
+    
 }
 
 NLM_CHEM_TEST_PMCID_PMID = os.path.join(NLM_CHEM_TEST, 'test/BC7T2-NLMChemTest-ids.tsv')

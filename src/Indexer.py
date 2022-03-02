@@ -2,10 +2,42 @@ from corpora import NLMChemCorpus, NLMChemTestCorpus#, CDRCorpus, CHEMDNERCorpus
 from elements import merge_collections
 
 PERCENTAGE = 1 #aumentar, requer mais conceitos anotados
-MIN_OCCUR_CAPTIONS = 0.16 * PERCENTAGE
-MIN_OCCUR_ABSTRACT = 0.17 * PERCENTAGE
-MIN_OCCUR_TITLE = 0.06 * PERCENTAGE #best 0.06
-MIN_OCCUR_CONCL = 0.06 * PERCENTAGE #best 0.06
+MIN_OCCUR_CAPTIONS = 1000 * PERCENTAGE
+MIN_OCCUR_ABSTRACT = 1000 * PERCENTAGE
+MIN_OCCUR_TITLE = 1000 * PERCENTAGE #best 0.06
+MIN_OCCUR_CONCL = 1000 * PERCENTAGE #best 0.06
+
+
+#pos desafio
+#MIN_OCCUR_CAPTIONS = 0.16 * PERCENTAGE
+#MIN_OCCUR_ABSTRACT = 0.17 * PERCENTAGE
+#MIN_OCCUR_TITLE = 0.06 * PERCENTAGE
+#MIN_OCCUR_CONCL = 0.06 * PERCENTAGE
+
+#submission
+#MIN_OCCUR_CAPTIONS = 0.2 * PERCENTAGE
+#MIN_OCCUR_ABSTRACT = 0.07 * PERCENTAGE
+#MIN_OCCUR_TITLE = 0.1 * PERCENTAGE
+#MIN_OCCUR_CONCL = 0.06 * PERCENTAGE
+
+#melhores maximos isolados
+#MIN_OCCUR_CAPTIONS = 0.06 * PERCENTAGE
+#MIN_OCCUR_ABSTRACT = 0.06 * PERCENTAGE
+#MIN_OCCUR_TITLE = 0.01 * PERCENTAGE
+#MIN_OCCUR_CONCL = 0.01 * PERCENTAGE
+
+#melhores conjunto 3
+MIN_OCCUR_CAPTIONS = 0.19 * PERCENTAGE
+MIN_OCCUR_ABSTRACT = 0.15 * PERCENTAGE
+MIN_OCCUR_TITLE = 0.02 * PERCENTAGE
+MIN_OCCUR_CONCL = 0.1 * PERCENTAGE
+
+#melhor bm
+MIN_OCCUR_CAPTIONS = 0.22 * PERCENTAGE
+MIN_OCCUR_ABSTRACT = 0.1 * PERCENTAGE
+MIN_OCCUR_TITLE = 0.02 * PERCENTAGE
+MIN_OCCUR_CONCL = 0.1 * PERCENTAGE
+
 
 METHOD = 1
 
@@ -23,16 +55,16 @@ METHOD = 1
 #python3 main.py -i && python3 ./evaluation/evaluate.py --reference_path ../dataset/NLM-CHEM/train/BC7T2-NLMChem-corpus-dev.BioC.json --prediction_path ../results/train_dev.json --evaluation_type identifier --evaluation_method strict --annotation_type MeSH_Indexing_Chemical
 
 #test
-#python3 main.py -i && python3 ./evaluation/evaluate.py --reference_path ../dataset/NLM-CHEM/train/BC7T2-NLMChem-corpus-test.BioC.json --prediction_path ../results/train_test.json --evaluation_type identifier --evaluation_method strict --annotation_type MeSH_Indexing_Chemical
+#python3 main.py -i -tt && python3 ./evaluation/evaluate.py --reference_path ../dataset/NLM-CHEM/train/BC7T2-NLMChem-corpus-test.BioC.json --prediction_path ../results/train_test.json --evaluation_type identifier --evaluation_method strict --annotation_type MeSH_Indexing_Chemical
 
 
 #evaluator for dataset test
-#python3 main.py -i && python3 ./evaluation/evaluate.py --reference_path ../dataset/NLM-CHEM/test/BC7T2-NLMChemTest-indexed_v1.BioC.json --prediction_path ../results/test.json --evaluation_type identifier --evaluation_method strict --annotation_type MeSH_Indexing_Chemical
+#python3 main.py -i -t && python3 ./evaluation/evaluate.py --reference_path ../dataset/NLM-CHEM/test/BC7T2-NLMChemTest-indexed_v1.BioC.json --prediction_path ../results/test.json --evaluation_type identifier --evaluation_method strict --annotation_type MeSH_Indexing_Chemical
 
 
 
 class Indexer():
-	def index(mesh, train_test=None, test=None):
+	def index(mesh, train_test=None, test=None, study=None):
 		if test: #test:
 			corpus = NLMChemTestCorpus()
 			corpus = corpus["test"]
@@ -43,14 +75,28 @@ class Indexer():
 			corpus 		= corpus["test"]
 			fileName 	= "train_test.json"
 			mesh 		= Indexer.readGoldStandard(corpus)
-			#...
 		else:
 			trainNLMCorpus 	= NLMChemCorpus()
 			trainCollection = trainNLMCorpus["train"]
 			devCollection   = trainNLMCorpus["dev"]
 			corpus 			= merge_collections(trainCollection, devCollection)
-			fileName 		= "train_dev.json"
 			mesh 			= Indexer.readGoldStandard(corpus)
+			fileName 		= "train_dev.json"
+			
+			if study:
+				for x in range(0, 31):
+					global MIN_OCCUR_ABSTRACT
+					MIN_OCCUR_ABSTRACT 	= x /100
+					for y in range(0, 31):
+						global MIN_OCCUR_CAPTIONS
+						MIN_OCCUR_CAPTIONS 	= y /100
+						for z in range(0, 31):
+							global MIN_OCCUR_TITLE
+							MIN_OCCUR_TITLE 	= z /100
+							fileName 			= "train_dev_{}-{}-{}.json".format(x, y, z)
+							print(fileName)
+							Indexer.process(fileName, corpus, mesh)
+				return None
 
 		Indexer.process(fileName, corpus, mesh)
 
