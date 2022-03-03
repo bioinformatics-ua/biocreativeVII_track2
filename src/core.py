@@ -11,8 +11,8 @@ class IModule():
             
     def transform(self, inputs):
         raise NotImplementedError(f"Method transform of {self.__class__.__name__} was not implemented")
-        
-        
+
+
 class ConfigParserDict(configparser.ConfigParser):
     """
     ini to dict from: https://stackoverflow.com/questions/3220670/read-all-the-contents-in-ini-file-into-dictionary-with-python
@@ -29,5 +29,3 @@ class ConfigParserDict(configparser.ConfigParser):
             d[k] = dict(self._defaults, **d[k])
             d[k].pop('__name__', None)
         return d
-
-    

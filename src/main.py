@@ -16,7 +16,7 @@ def readSettings(settings_file):
     with open(settings_file) as f:
         # this will raise if file not exists
         return configuration.read_file(f)
-    
+
 def load_corpus(corpus_folder, 
                 ignore_non_contiguous_entities, 
                 ignore_normalization_identifiers,
@@ -33,7 +33,7 @@ def load_corpus(corpus_folder,
                          solve_overlapping_passages=solve_overlapping_passages)
     
     return base_corpus
-    
+
 if __name__ == "__main__":
     
     parser = argparse.ArgumentParser(description="")
@@ -75,6 +75,5 @@ if __name__ == "__main__":
     
     for module in pipeline:
         next_module_input = module.transform(next_module_input)
-
         
-    
+        
