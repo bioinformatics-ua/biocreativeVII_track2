@@ -1,2 +1,8 @@
-dataset/*
-!dataset/README.md
+__pycache__
+.ipynb_checkpoints
+.vscode
+
+bc-venv
+local
+logs
+wandb

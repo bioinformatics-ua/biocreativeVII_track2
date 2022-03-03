@@ -22,14 +22,12 @@ URL_CDR_GZ_FILE="https://ftp.ncbi.nlm.nih.gov/pub/lu/BC7-NLM-Chem-track/$CDR_GZ_
 CHEMDNER_GZ_FILE="BC7T2-CHEMDNER-corpus_v2.BioC.json.gz"
 URL_CHEMDNER_GZ_FILE="https://ftp.ncbi.nlm.nih.gov/pub/lu/BC7-NLM-Chem-track/$CHEMDNER_GZ_FILE"
 
-# download a trained model
-
-if [ ! -d "datasets/NLM-Chem" ]; then
-    mkdir -p "datasets/NLM-Chem"
+if [ ! -d "datasets/NLMChem" ]; then
+    mkdir -p "datasets/NLMChem"
 fi
 
-if [ ! -d "datasets/NLM-Chem-Test" ]; then
-    mkdir -p "datasets/NLM-Chem-Test"
+if [ ! -d "datasets/NLMChemTest" ]; then
+    mkdir -p "datasets/NLMChemTest"
 fi
 
 if [ ! -d "datasets/CDR" ]; then
@@ -40,7 +38,7 @@ if [ ! -d "datasets/CHEMDNER" ]; then
     mkdir -p "datasets/CHEMDNER"
 fi
 
-cd "datasets/NLM-Chem"
+cd "datasets/NLMChem"
 
 if [ ! -f "$NLMCHEM_GZ_FILE" ]; then
     echo "Download $NLMCHEM_GZ_FILE"
@@ -52,7 +50,7 @@ tar -xf $NLMCHEM_GZ_FILE
 
 cd -
 
-cd "datasets/NLM-Chem-Test"
+cd "datasets/NLMChemTest"
 
 if [ ! -f "$NLMCHEMTEST_GZ_FILE" ]; then
     echo "Download $NLMCHEMTEST_GZ_FILE"
@@ -88,7 +86,9 @@ tar -xf $CHEMDNER_GZ_FILE
 
 cd -
 
-## TODO Add the drug prot here
+# TODO: add the DrugProt train and dev subsets.
+
+# TODO: download trained model weights.
 
 #
 # Python dependencies.
@@ -113,6 +113,3 @@ echo "Installing python requirements"
 $PIP install -r requirements.txt #-U
 
 $PIP install https://s3-us-west-2.amazonaws.com/ai2-s2-scispacy/releases/v0.4.0/en_core_sci_sm-0.4.0.tar.gz
-
-
-

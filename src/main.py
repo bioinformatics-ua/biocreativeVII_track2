@@ -1,7 +1,7 @@
 import argparse
 import configparser
 
-from Utils import Utils
+from utils import Utils
 
 from annotator import Annotator
 from annotator.corpora import BaseCorpus
@@ -68,7 +68,7 @@ if __name__ == "__main__":
     settings = readSettings(args.settings)
     pipeline = [class_name(**settings[class_name.__name__]) for class_name, init in ((Annotator, args.annotator), (Normalizer, args.normalizer), (Indexer, args.indexer)) if init]
     
-    next_module_input = load_corpus(args.source_directory, **settings["Corpus.read.settings"])
+    next_module_input = load_corpus(args.source_directory, **settings["ReadCollectionParams"])
     
     # load to baseCorpus
     
