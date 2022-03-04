@@ -1,5 +1,5 @@
 import argparse
-import configparser
+import yaml
 
 from utils import Utils
 
@@ -8,26 +8,46 @@ from annotator.corpora import BaseCorpus
 
 from normalizer import Normalizer
 from indexer import Indexer
-from core import ConfigParserDict
 
-def readSettings(settings_file):
-    configuration = ConfigParserDict()
-    
+import glob
+import os
+
+def read_settings(settings_file):    
     with open(settings_file) as f:
-        # this will raise if file not exists
-        return configuration.read_file(f)
+        return yaml.safe_load(f)
 
+def cli_settings_override(args, settings):
+    """
+    Override the specific settings with the cli args
+    
+    Not implemented...
+    """
+    return settings
+    
+def print_current_configuration(settings, tab=""):
+    if tab=="":
+        print()
+        print("Settings:")
+        print_current_configuration(settings, tab="\t")
+        print()
+    else:
+        for k,v in settings.items():
+            if isinstance(v, dict):
+                print(f"{tab}{k}:")
+                print_current_configuration(v, tab=tab+"\t")
+            else:
+                print(tab,k,"=",v)
+
+    
 def load_corpus(corpus_folder, 
                 ignore_non_contiguous_entities, 
                 ignore_normalization_identifiers,
                 solve_overlapping_passages):
     
-    # read files from folder
-    print(ignore_non_contiguous_entities, 
-                ignore_normalization_identifiers,
-                solve_overlapping_passages)
+    # load corpus
+    corpus = {f"{os.path.splitext(os.path.basename(file))[0]}":file for file in glob.glob(os.path.join(corpus_folder, "*.json"))}
     
-    base_corpus = BaseCorpus({"test":corpus_folder},
+    base_corpus = BaseCorpus(corpus,
                          ignore_non_contiguous_entities=ignore_non_contiguous_entities,
                          ignore_normalization_identifiers=ignore_normalization_identifiers,
                          solve_overlapping_passages=solve_overlapping_passages)
@@ -39,12 +59,12 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="")
     parser.add_argument('source_directory',
                         type=str,
-                        help='The system settings file (default: settings.ini)')
+                        help='')
     
     configs = parser.add_argument_group('Global settings', 'This settings are related with the location of the files and directories.')
     configs.add_argument('-s', '--settings', dest='settings', \
-                        type=str, default="src/settings.ini", \
-                        help='The system settings file (default: settings.ini)')    
+                        type=str, default="src/settings.yaml", \
+                        help='The system settings file (default: settings.yaml)')    
     configs.add_argument('-a', '--annotator', default=False, action='store_true', \
                          help='Flag to annotate the files (default: False)')
     configs.add_argument('-n', '--normalizer', default=False, action='store_true', \
@@ -65,13 +85,15 @@ if __name__ == "__main__":
         exit()
     
     # read the default settings
-    settings = readSettings(args.settings)
+    settings = read_settings(args.settings)
+    
+    settings = cli_settings_override(args, settings)
+    print_current_configuration(settings)
+    
     pipeline = [class_name(**settings[class_name.__name__]) for class_name, init in ((Annotator, args.annotator), (Normalizer, args.normalizer), (Indexer, args.indexer)) if init]
     
-    next_module_input = load_corpus(args.source_directory, **settings["ReadCollectionParams"])
-    
     # load to baseCorpus
-    
+    next_module_input = load_corpus(args.source_directory, **settings["ReadCollectionParams"])
     
     for module in pipeline:
         next_module_input = module.transform(next_module_input)

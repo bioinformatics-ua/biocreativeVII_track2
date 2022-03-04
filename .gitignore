@@ -2,6 +2,10 @@ __pycache__
 .ipynb_checkpoints
 .vscode
 
+.polus_cache
+model_checkpoint
+outputs
+datasets
 bc-venv
 local
 logs

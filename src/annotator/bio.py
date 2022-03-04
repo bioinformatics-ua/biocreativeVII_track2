@@ -2,8 +2,8 @@
 # -*- coding: utf-8 -*-
 
 
-from elements import Entity
-from elements import EntitySet
+from annotator.elements import Entity
+from annotator.elements import EntitySet
 import copy
 
 

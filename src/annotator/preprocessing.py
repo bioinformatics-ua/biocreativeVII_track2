@@ -13,7 +13,7 @@
 import spacy
 from transformers import BertTokenizerFast
 
-from elements import add_offset_to_spans
+from annotator.elements import add_offset_to_spans
 
 
 nlp = spacy.load('en_core_sci_sm', disable=['ner'])

@@ -12,13 +12,13 @@ from transformers import TFBertModel
 # from transformers import BatchEncoding
 # from tokenizers import Encoding
 
-from bio import decode_bio
-from bio import get_bio
-from elements import get_entities_within_span, EntitySet, Entity
-from evaluation_extra import eval_list_of_entity_sets
+from annotator.bio import decode_bio
+from annotator.bio import get_bio
+from annotator.elements import get_entities_within_span, EntitySet, Entity
+from annotator.evaluation_extra import eval_list_of_entity_sets
 from polus.core import BaseLogger, find_dtype_and_shapes
-from preprocessing import sentence_splitting
-from preprocessing import Tokenizer
+from annotator.preprocessing import sentence_splitting
+from annotator.preprocessing import Tokenizer
 
 import random
 

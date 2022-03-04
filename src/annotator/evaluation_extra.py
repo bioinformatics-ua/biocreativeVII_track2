@@ -5,7 +5,7 @@
 from math import nan
 
 # from elements import Entity
-from elements import EntitySet
+from annotator.elements import EntitySet
 
 
 def precision_recall_f1(tp, fp, fn, return_nan=True):

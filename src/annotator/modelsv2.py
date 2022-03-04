@@ -7,7 +7,6 @@ import h5py
 import types
 
 #import for refering to this file, used in the load_model method
-import models
 from polus.layers import CRF
 from polus.core import BaseLogger, get_jit_compile
 from polus.models import from_config, split_bert_model, split_bert_model_from_checkpoint, SavableModel
@@ -62,8 +61,7 @@ class NERPreTrainBertModel_768(SavableModel):
 
         # override of inference method
         @tf.function(input_signature=[tf.TensorSpec(shape=(None, None, 768), dtype=tf.float32), 
-                                      tf.TensorSpec(shape=(None, None), dtype=tf.int32)],
-                     jit_compile=get_jit_compile())
+                                      tf.TensorSpec(shape=(None, None), dtype=tf.int32)])
         def inference(self, embeddings, attention_mask):
             print("CUSTOM INFERENCE WAS TRACED")
             return tf.argmax(self(embeddings=embeddings, attention_mask=attention_mask, training=False), axis=-1, output_type=tf.dtypes.int32)
