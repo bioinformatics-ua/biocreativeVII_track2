@@ -6,6 +6,7 @@ from polus.data import DataLoader, CachedDataLoader, build_bert_embeddings, Data
 from annotator import modelsv2
 from annotator.data import short_checkpoint_names, bertseq_center_generator, document_generator, tokseqconcat_generator, SequenceDecoder
 from annotator.preprocessing import PUBMEDBERT_FULL, Tokenizer
+from annotator.utils import write_collections_to_file
 
 import tensorflow as tf
 import numpy as np
@@ -115,6 +116,10 @@ class Annotator(IModule):
             # save the predicts to be used during ensemble
             if len(samples)>0:
                 np.save(f'{self.write_path}/{group}-docs_samples.npy', samples, allow_pickle=True, fix_imports=True)
-
-        return sequence_decoder.get_collections()
+        
+        collections = sequence_decoder.get_collections()
+        ## writhe the collections to disk
+        if self.write_output:
+            write_collections_to_file(collections, name = self.write_path)
+        return collections
             

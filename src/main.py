@@ -5,7 +5,7 @@ from utils import Utils
 
 from annotator import Annotator
 from annotator.corpora import BaseCorpus
-
+from utils import download_from_PMC
 from normalizer import Normalizer
 from indexer import Indexer
 
@@ -39,13 +39,31 @@ def print_current_configuration(settings, tab=""):
                 print(tab,k,"=",v)
 
     
-def load_corpus(corpus_folder, 
+def load_corpus(corpus_path, 
                 ignore_non_contiguous_entities, 
                 ignore_normalization_identifiers,
                 solve_overlapping_passages):
     
-    # load corpus
-    corpus = {f"{os.path.splitext(os.path.basename(file))[0]}":file for file in glob.glob(os.path.join(corpus_folder, "*.json"))}
+    if os.path.isdir(corpus_path):
+        # load corpus
+        corpus = {f"{os.path.splitext(os.path.basename(file))[0]}":file for file in glob.glob(os.path.join(corpus_path, "*.json"))}
+    elif os.path.splitext(corpus_path)[1]==".json":
+        corpus = {f"{os.path.splitext(os.path.basename(corpus_path))[0]}":corpus_path}
+    elif corpus_path.startswith("PMC"):
+        # recall the same method but now with the downloaded .json as file
+        try:
+            corpus_path = download_from_PMC(corpus_path)
+        except Exception as e:
+            raise e
+            print()
+            print("The download of the PMC didn't returned a json object, please check the above stacktrace for more information")
+            
+        return load_corpus(corpus_path,
+                           ignore_non_contiguous_entities, 
+                           ignore_normalization_identifiers,
+                           solve_overlapping_passages)
+    else:
+        raise ValueError(f"found {corpus_path} as the path. However only folders, json and PMCID are supported")
     
     base_corpus = BaseCorpus(corpus,
                          ignore_non_contiguous_entities=ignore_non_contiguous_entities,
