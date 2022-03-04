@@ -9,6 +9,7 @@ from utils import download_from_PMC
 from normalizer import Normalizer
 from indexer import Indexer
 
+import traceback
 import glob
 import os
 
@@ -50,14 +51,16 @@ def load_corpus(corpus_path,
     elif os.path.splitext(corpus_path)[1]==".json":
         corpus = {f"{os.path.splitext(os.path.basename(corpus_path))[0]}":corpus_path}
     elif corpus_path.startswith("PMC"):
-        # recall the same method but now with the downloaded .json as file
+        
         try:
             corpus_path = download_from_PMC(corpus_path)
-        except Exception as e:
-            raise e
+        except:
+            traceback.print_exc()
             print()
-            print("The download of the PMC didn't returned a json object, please check the above stacktrace for more information")
+            print("The download of the PMC didn't returned a valid json object, please check the above stack trace for more information")
+            exit()
             
+        # call the same method but now with the downloaded .json as file
         return load_corpus(corpus_path,
                            ignore_non_contiguous_entities, 
                            ignore_normalization_identifiers,
@@ -104,14 +107,13 @@ if __name__ == "__main__":
     
     # read the default settings
     settings = read_settings(args.settings)
-    
     settings = cli_settings_override(args, settings)
     print_current_configuration(settings)
     
-    pipeline = [class_name(**settings[class_name.__name__]) for class_name, init in ((Annotator, args.annotator), (Normalizer, args.normalizer), (Indexer, args.indexer)) if init]
-    
     # load to baseCorpus
     next_module_input = load_corpus(args.source_directory, **settings["ReadCollectionParams"])
+    
+    pipeline = [class_name(**settings[class_name.__name__]) for class_name, init in ((Annotator, args.annotator), (Normalizer, args.normalizer), (Indexer, args.indexer)) if init]
     
     for module in pipeline:
         next_module_input = module.transform(next_module_input)
