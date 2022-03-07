@@ -8,7 +8,8 @@
 
 ### Installation
 
-It is recommended to execute the `setup.sh` file in order to install all the dependencies and download the official datasets. By default the script will use python3.6. However, if not installed, you can try with a different version changing the `setup.sh` file.
+First, make sure you have [Anaconda](https://www.anaconda.com/products/individual) installed for creating the `biocreative` conda environment with the Python 3.6.9 version.
+Then, run the `setup.sh` file in order to (1) create the conda environment and install the dependencies, and (2) download the required datasets.
 
 ```
 $ ./setup.sh

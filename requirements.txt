@@ -91,7 +91,6 @@ pbr==5.8.0
 pexpect==4.8.0
 pickleshare==0.7.5
 Pillow==8.4.0
-pkg_resources==0.0.0
 polus==0.1.8
 PyYAML==6.0
 preshed==3.0.6
@@ -127,6 +126,7 @@ scispacy==0.4.0
 Send2Trash==1.8.0
 sentencepiece==0.1.96
 sentry-sdk==1.5.1
+setuptools==59.6.0
 shortuuid==1.0.8
 six==1.15.0
 smart-open==5.2.1
