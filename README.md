@@ -8,8 +8,8 @@
 
 ### Installation
 
-First, make sure you have [Anaconda](https://www.anaconda.com/products/individual) installed for creating the `biocreative` conda environment with the Python 3.6.9 version.
-Then, run the `setup.sh` file in order to (1) create the conda environment and install the dependencies, and (2) download the required datasets.
+First, make sure you have [Anaconda](https://www.anaconda.com/products/individual) installed.
+Then, execute the `setup.sh` file in order to (1) create the `biocreative` conda environment with the Python 3.6.9 version and install the dependencies, and (2) download the required datasets.
 
 ```
 $ ./setup.sh
@@ -29,7 +29,7 @@ to do
   * Sérgio Matos<sup id="a1">[1](#f1)</sup>
 
 1. <small id="f1"> University of Aveiro, Department of Electronics, Telecommunications and Informatics (DETI / IEETA), Aveiro, Portugal </small> [↩](#a1)
-2. <small id="f4"> University of A Coruña, Department of Information and Communications Technologies, A Coruña, Spain </small> [↩](#a4)
+2. <small id="f2"> University of A Coruña, Department of Information and Communications Technologies, A Coruña, Spain </small> [↩](#a2)
 
 
 ### Cite
