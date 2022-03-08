@@ -7,7 +7,7 @@ Note that we use the "CTD_chemicals.tsv" file corresponding to the:
 With md5sum:
     3f01734af6426b4c42ece70b04757de3
 
-Please download the version of this report from:
+We keep a backup copy of this version at:
 TO_DO_INSERT_URL
 
 References:

@@ -13,7 +13,7 @@ import traceback
 import glob
 import os
 
-def read_settings(settings_file):    
+def read_settings(settings_file):
     with open(settings_file) as f:
         return yaml.safe_load(f)
 
@@ -40,8 +40,8 @@ def print_current_configuration(settings, tab=""):
                 print(tab,k,"=",v)
 
     
-def load_corpus(corpus_path, 
-                ignore_non_contiguous_entities, 
+def load_corpus(corpus_path,
+                ignore_non_contiguous_entities,
                 ignore_normalization_identifiers,
                 solve_overlapping_passages):
     
@@ -62,7 +62,7 @@ def load_corpus(corpus_path,
             
         # call the same method but now with the downloaded .json as file
         return load_corpus(corpus_path,
-                           ignore_non_contiguous_entities, 
+                           ignore_non_contiguous_entities,
                            ignore_normalization_identifiers,
                            solve_overlapping_passages)
     else:
@@ -85,7 +85,7 @@ if __name__ == "__main__":
     configs = parser.add_argument_group('Global settings', 'This settings are related with the location of the files and directories.')
     configs.add_argument('-s', '--settings', dest='settings', \
                         type=str, default="src/settings.yaml", \
-                        help='The system settings file (default: settings.yaml)')    
+                        help='The system settings file (default: settings.yaml)')
     configs.add_argument('-a', '--annotator', default=False, action='store_true', \
                          help='Flag to annotate the files (default: False)')
     configs.add_argument('-n', '--normalizer', default=False, action='store_true', \
