@@ -14,7 +14,7 @@ ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)
 # NLM-Chem corpus (directory path) and subsets (file paths).
 #
 
-NLMCHEM = os.path.join(ROOT, 'datasets', 'NLM-Chem')
+NLMCHEM = os.path.join(ROOT, 'datasets', 'NLMChem')
 
 NLMCHEM_GROUPS = {
     'train': os.path.join(NLMCHEM, 'BC7T2-NLMChem-corpus-train.BioC.json'),
@@ -24,7 +24,7 @@ NLMCHEM_GROUPS = {
 
 NLMCHEM_PMCID_PMID = os.path.join(NLMCHEM, 'nlmchem_pmcid_pmid.tsv')
 
-NLMCHEMTEST = os.path.join(ROOT, 'datasets', 'NLM-Chem-Test')
+NLMCHEMTEST = os.path.join(ROOT, 'datasets', 'NLMChemTest')
 
 NLMCHEMTEST_GROUPS = {
     'test': os.path.join(NLMCHEMTEST, 'BC7T2-NLMChemTest-corpus_v1.BioC.json')
