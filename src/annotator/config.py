@@ -8,56 +8,35 @@ import os
 #
 # Repository root absolute path.
 #
-ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-
-#
-# Logs files (results).
-#
-LOGS = os.path.join(ROOT, 'local', 'logs')
+ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 #
 # NLM-Chem corpus (directory path) and subsets (file paths).
 #
 
-NLM_CHEM = os.path.join(ROOT, 'local', 'datasets', 'NLM-Chem')
+NLMCHEM = os.path.join(ROOT, 'datasets', 'NLM-Chem')
 
-NLM_CHEM_GROUPS = {
-    'train': os.path.join(NLM_CHEM, 'BC7T2-NLMChem-corpus-train.BioC.json'),
-    'dev': os.path.join(NLM_CHEM, 'BC7T2-NLMChem-corpus-dev.BioC.json'),
-    'test': os.path.join(NLM_CHEM, 'BC7T2-NLMChem-corpus-test.BioC.json')
+NLMCHEM_GROUPS = {
+    'train': os.path.join(NLMCHEM, 'BC7T2-NLMChem-corpus-train.BioC.json'),
+    'dev': os.path.join(NLMCHEM, 'BC7T2-NLMChem-corpus-dev.BioC.json'),
+    'test': os.path.join(NLMCHEM, 'BC7T2-NLMChem-corpus-test.BioC.json')
 }
 
-NLM_CHEM_PMCID_PMID = os.path.join(NLM_CHEM, 'nlmchem_pmcid_pmid.tsv')
+NLMCHEM_PMCID_PMID = os.path.join(NLMCHEM, 'nlmchem_pmcid_pmid.tsv')
 
-NLM_CHEM_TEST = os.path.join(ROOT, 'local', 'datasets', 'NLM-Chem-Test')
+NLMCHEMTEST = os.path.join(ROOT, 'datasets', 'NLM-Chem-Test')
 
-NLM_CHEM_TEST_GROUPS = {
-    'test': os.path.join(NLM_CHEM_TEST, 'BC7T2-NLMChemTest-corpus_v1.BioC.json')
+NLMCHEMTEST_GROUPS = {
+    'test': os.path.join(NLMCHEMTEST, 'BC7T2-NLMChemTest-corpus_v1.BioC.json')
 }
 
-NLM_CHEM_TEST_PMCID_PMID = os.path.join(NLM_CHEM_TEST, 'nlmchemtest_pmcid_pmid.tsv')
-
-NLM_CHEM_TEST_ANN = os.path.join(ROOT, 'local', 'datasets', 'NLM-Chem-Test-Annotated')
-
-NLM_CHEM_TEST_ANN_GROUPS = {
-    'test': os.path.join(NLM_CHEM_TEST_ANN, 'BC7T2-NLMChemTest-annotated_v1.BioC.json')
-}
-
-NLM_CHEM_TEST_ANN_PMCID_PMID = os.path.join(NLM_CHEM_TEST_ANN, 'nlmchemtestann_pmcid_pmid.tsv')
-
-NLM_CHEM_TEST_IND = os.path.join(ROOT, 'local', 'datasets', 'NLM-Chem-Test-Indexed')
-
-NLM_CHEM_TEST_IND_GROUPS = {
-    'test': os.path.join(NLM_CHEM_TEST_IND, 'BC7T2-NLMChemTest-indexed_v1.BioC.json')
-}
-
-NLM_CHEM_TEST_IND_PMCID_PMID = os.path.join(NLM_CHEM_TEST_IND, 'nlmchemtestind_pmcid_pmid.tsv')
+NLMCHEMTEST_PMCID_PMID = os.path.join(NLMCHEMTEST, 'nlmchemtest_pmcid_pmid.tsv')
 
 #
 # Other official datasets shared by BioCreative VII Track 2 organizers.
 #
 
-CDR = os.path.join(ROOT, 'local', 'datasets', 'CDR')
+CDR = os.path.join(ROOT, 'datasets', 'CDR')
 
 CDR_GROUPS = {
     'train': os.path.join(CDR, 'BC7T2-CDR-corpus-train.BioC.json'),
@@ -65,7 +44,7 @@ CDR_GROUPS = {
     'test': os.path.join(CDR, 'BC7T2-CDR-corpus-test.BioC.json')
 }
 
-CHEMDNER = os.path.join(ROOT, 'local', 'datasets', 'CHEMDNER')
+CHEMDNER = os.path.join(ROOT, 'datasets', 'CHEMDNER')
 
 CHEMDNER_GROUPS = {
     'train': os.path.join(CHEMDNER, 'BC7T2-CHEMDNER-corpus-training.BioC.json'),
@@ -74,62 +53,17 @@ CHEMDNER_GROUPS = {
 }
 
 #
-# Corpora derived from:
-# https://github.com/cambridgeltl/MTL-Bioinformatics-2016
-#
-
-BC5CDR = os.path.join(ROOT, 'local', 'datasets', 'BC5CDR')
-
-BC5CDR_GROUPS = {
-    'train': os.path.join(BC5CDR, 'BC5CDR-train.json'),
-    'dev': os.path.join(BC5CDR, 'BC5CDR-dev.json'),
-    'test': os.path.join(BC5CDR, 'BC5CDR-test.json'),
-}
-
-BIONLP11ID = os.path.join(ROOT, 'local', 'datasets', 'BioNLP11ID')
-
-BIONLP11ID_GROUPS = {
-    'train': os.path.join(BIONLP11ID, 'BioNLP11ID-train.json'),
-    'dev': os.path.join(BIONLP11ID, 'BioNLP11ID-dev.json'),
-    'test': os.path.join(BIONLP11ID, 'BioNLP11ID-test.json'),
-}
-
-BIONLP13CG = os.path.join(ROOT, 'local', 'datasets', 'BioNLP13CG')
-
-BIONLP13CG_GROUPS = {
-    'train': os.path.join(BIONLP13CG, 'BioNLP13CG-train.json'),
-    'dev': os.path.join(BIONLP13CG, 'BioNLP13CG-dev.json'),
-    'test': os.path.join(BIONLP13CG, 'BioNLP13CG-test.json'),
-}
-
-BIONLP13PC = os.path.join(ROOT, 'local', 'datasets', 'BioNLP13PC')
-
-BIONLP13PC_GROUPS = {
-    'train': os.path.join(BIONLP13PC, 'BioNLP13PC-train.json'),
-    'dev': os.path.join(BIONLP13PC, 'BioNLP13PC-dev.json'),
-    'test': os.path.join(BIONLP13PC, 'BioNLP13PC-test.json'),
-}
-
-CRAFT = os.path.join(ROOT, 'local', 'datasets', 'CRAFT')
-
-CRAFT_GROUPS = {
-    'train': os.path.join(CRAFT, 'CRAFT-train.json'),
-    'dev': os.path.join(CRAFT, 'CRAFT-dev.json'),
-    'test': os.path.join(CRAFT, 'CRAFT-test.json'),
-}
-
-#
 # DrugProt and DrugProtFiltered datasets.
 #
 
-DRUGPROT = os.path.join(ROOT, 'local', 'datasets', 'DrugProt')
+DRUGPROT = os.path.join(ROOT, 'datasets', 'DrugProt')
 
 DRUGPROT_GROUPS = {
     'train': os.path.join(DRUGPROT, 'DrugProt-train.json'),
     'dev': os.path.join(DRUGPROT, 'DrugProt-dev.json'),
 }
 
-DRUGPROTFILTERED = os.path.join(ROOT, 'local', 'datasets', 'DrugProtFiltered')
+DRUGPROTFILTERED = os.path.join(ROOT, 'datasets', 'DrugProtFiltered')
 
 DRUGPROTFILTERED_GROUPS = {
     'train': os.path.join(DRUGPROTFILTERED, 'DrugProtFiltered-train.json'),
@@ -142,4 +76,4 @@ DRUGPROTFILTERED_GROUPS = {
 # http://ctdbase.org/reports/CTD_chemicals.tsv.gz
 #
 
-CTD_CHEMICALS = os.path.join(ROOT, 'local', 'ctdbase', 'CTD_chemicals.tsv')
+CTD_CHEMICALS = os.path.join(ROOT, 'ctdbase', 'CTD_chemicals.tsv')
