@@ -3,7 +3,7 @@ import yaml
 
 from utils import Utils
 
-from annotator import Annotator
+from annotator.base import Annotator
 from annotator.corpora import BaseCorpus
 from utils import download_from_PMC
 from normalizer import Normalizer

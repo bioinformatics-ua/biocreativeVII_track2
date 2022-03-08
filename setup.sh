@@ -1,25 +1,7 @@
-#!/bin/bash
-
 #
 # Exit when any command fails.
 #
 set -e
-
-#
-# Create a conda environment with Python 3.6.9.
-#
-if { conda activate biocreative; } >/dev/null 2>&1; then
-    echo 'The "biocreative" conda environment already exists.'
-    echo 'Activating the "biocreative" conda environment.'
-    conda activate biocreative
-else
-    echo 'Creating the "biocreative" conda environment (Python 3.6.9)...'
-    conda create --name biocreative python=3.6.9
-    echo 'Activating the "biocreative" conda environment.'
-    conda activate biocreative
-    echo 'Installing the requirements...'
-    pip install -r requirements.txt
-fi
 
 #
 # Download the NLM-Chem, NLM-Chem-Test, CDR, and CHEMDNER datasets.

@@ -9,7 +9,15 @@
 ### Installation
 
 First, make sure you have [Anaconda](https://www.anaconda.com/products/individual) installed.
-Then, execute the `setup.sh` file in order to (1) create the `biocreative` conda environment with the Python 3.6.9 version and install the dependencies, and (2) download the required datasets.
+Then, create the `biocreative` conda environment with the Python 3.6.9 version and install the dependencies:
+
+```
+$ conda create --name biocreative python=3.6.9
+$ conda activate biocreative
+$ pip install -r requirements.txt
+```
+
+Finally, execute the `setup.sh` file in order to download and prepare the required data files: (1) the [NLM-Chem, CDR, and CHEMDNER](https://ftp.ncbi.nlm.nih.gov/pub/lu/BC7-NLM-Chem-track/) datasets; (2) the [DrugProt](https://doi.org/10.5281/zenodo.5119892) dataset; (3) the [CTD chemical vocabulary](http://ctdbase.org/downloads/#allchems), and (4) pre-trained model weights for straightforward inference.
 
 ```
 $ ./setup.sh
