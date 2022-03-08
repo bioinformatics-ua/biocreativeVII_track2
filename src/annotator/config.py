@@ -59,15 +59,15 @@ CHEMDNER_GROUPS = {
 DRUGPROT = os.path.join(ROOT, 'datasets', 'DrugProt')
 
 DRUGPROT_GROUPS = {
-    'train': os.path.join(DRUGPROT, 'DrugProt-train.json'),
-    'dev': os.path.join(DRUGPROT, 'DrugProt-dev.json'),
+    'train': os.path.join(DRUGPROT, 'DrugProt-training.json'),
+    'dev': os.path.join(DRUGPROT, 'DrugProt-development.json'),
 }
 
 DRUGPROTFILTERED = os.path.join(ROOT, 'datasets', 'DrugProtFiltered')
 
 DRUGPROTFILTERED_GROUPS = {
-    'train': os.path.join(DRUGPROTFILTERED, 'DrugProtFiltered-train.json'),
-    'dev': os.path.join(DRUGPROTFILTERED, 'DrugProtFiltered-dev.json'),
+    'train': os.path.join(DRUGPROTFILTERED, 'DrugProtFiltered-training.json'),
+    'dev': os.path.join(DRUGPROTFILTERED, 'DrugProtFiltered-development.json'),
 }
 
 #
