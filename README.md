@@ -17,6 +17,15 @@ $ conda activate biocreative
 $ pip install -r requirements.txt
 ```
 
+Alternatively, if you have Python 3.6 installed on your system you can create a [Python virtual environment](https://docs.python.org/3/library/venv.html).
+
+```
+$ python3.6 -m venv biocreative
+$ source biocreative/bin/activate
+$ python -m pip install --upgrade pip
+$ pip install -r requirements.txt
+```
+
 Finally, execute the `setup.sh` file in order to download and prepare the required data files: (1) the [NLM-Chem, CDR, and CHEMDNER](https://ftp.ncbi.nlm.nih.gov/pub/lu/BC7-NLM-Chem-track/) datasets; (2) the [DrugProt](https://doi.org/10.5281/zenodo.5119892) dataset; (3) the [CTD chemical vocabulary](http://ctdbase.org/downloads/#allchems), and (4) pre-trained model weights for straightforward inference.
 
 ```
