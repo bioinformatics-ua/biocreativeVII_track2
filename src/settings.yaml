@@ -1,0 +1,22 @@
+Annotator:
+    model_checkpoint: "model_checkpoint/mild-water-7.cfg"
+    write_output: True
+    # save the predicted tags in order to produce an ensamble run
+    write_tags_output: True
+    write_path: "outputs/annotator"
+    # the contextualized embeddings from the BERT will be cached in disk (by the polus library) in .polus_cache/dataloaders
+    cache_context_embeddings: True
+    batch_size: 64
+
+Normalizer:
+    write_output: True
+    write_path: "outputs/normalizer"
+
+Indexer:
+    write_output: True
+    write_path: "outputs/indexer"
+
+ReadCollectionParams:
+    ignore_non_contiguous_entities: False
+    ignore_normalization_identifiers: False
+    solve_overlapping_passages: False

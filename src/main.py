@@ -1,68 +1,121 @@
 import argparse
-import configparser
-from Utils import Utils
-from Annotator import Annotator
-from Normalizer import Normalizer
-from Indexer import Indexer
+import yaml
 
-def help(show=False):
-	parser = argparse.ArgumentParser(description="")
-	configs = parser.add_argument_group('Global settings', 'This settings are related with the location of the files and directories.')
-	configs.add_argument('-s', '--settings', dest='settings', \
-						type=str, default="File with settings (default: settings.ini)", \
-						help='The system settings file (default: settings.ini)')	
-	configs.add_argument('-a', '--annotate', default=False, action='store_true', \
-						 help='Flag to annotate the files (default: False)')
-	configs.add_argument('-n', '--normalize', default=False, action='store_true', \
-							help='Flag to normalize the detected concepts (default: False)')
-	configs.add_argument('-i', '--indexing', default=False, action='store_true', \
-							help='Flag to index the detected concepts (default: False)')
+from utils import Utils
 
-	executionMode = parser.add_argument_group('Execution Mode', 'Flags to select the execution mode!')
-	#executionMode.add_argument('-tr', '--train', default=False, action='store_true', \
-	#						help='In this mode, the script will work to train the models (default: False)')
-	executionMode.add_argument('-t', '--test', default=False, action='store_true', \
-							help='In this mode, the script will work using the test dataset(default: False)')
-	
-	if show:
-		parser.print_help()
-	return parser.parse_args()
+from annotator.base import Annotator
+from annotator.corpora import BaseCorpus
+from utils import download_from_PMC
+from normalizer import Normalizer
+from indexer import Indexer
 
-def readSettings(settingsFile):
-	configuration = configparser.ConfigParser()
-	configuration.read(settingsFile)
-	if not configuration:
-		raise Exception("The settings file was not found!")
-	return configuration
+import traceback
+import glob
+import os
 
-def main():
-	args = help()
-	settings = readSettings(args.settings)
-	if  not args.annotate and \
-		not args.normalize and \
-		not args.indexing:
-		print("Nothing to do, please type --help to show the different options!")
-		help(show=True)
-		exit()
+def read_settings(settings_file):
+    with open(settings_file) as f:
+        return yaml.safe_load(f)
 
-	files, goldStandard = Utils.readFiles()
-	gsAnn = goldStandard["annotations"] if not args.test else False
-	gsIndexing = goldStandard["indexing"] if not args.test else False
+def cli_settings_override(args, settings):
+    """
+    Override the specific settings with the cli args
+    
+    Not implemented...
+    """
+    return settings
+    
+def print_current_configuration(settings, tab=""):
+    if tab=="":
+        print()
+        print("Settings:")
+        print_current_configuration(settings, tab="\t")
+        print()
+    else:
+        for k,v in settings.items():
+            if isinstance(v, dict):
+                print(f"{tab}{k}:")
+                print_current_configuration(v, tab=tab+"\t")
+            else:
+                print(tab,k,"=",v)
 
-	if args.annotate:
-		annotations = Annotator.annotate(files, goldStandard=gsAnn, test=args.test)
+    
+def load_corpus(corpus_path,
+                ignore_non_contiguous_entities,
+                ignore_normalization_identifiers,
+                solve_overlapping_passages):
+    
+    if os.path.isdir(corpus_path):
+        # load corpus
+        corpus = {f"{os.path.splitext(os.path.basename(file))[0]}":file for file in glob.glob(os.path.join(corpus_path, "*.json"))}
+    elif os.path.splitext(corpus_path)[1]==".json":
+        corpus = {f"{os.path.splitext(os.path.basename(corpus_path))[0]}":corpus_path}
+    elif corpus_path.startswith("PMC"):
+        
+        try:
+            corpus_path = download_from_PMC(corpus_path)
+        except:
+            traceback.print_exc()
+            print()
+            print("The download of the PMC didn't returned a valid json object, please check the above stack trace for more information")
+            exit()
+            
+        # call the same method but now with the downloaded .json as file
+        return load_corpus(corpus_path,
+                           ignore_non_contiguous_entities,
+                           ignore_normalization_identifiers,
+                           solve_overlapping_passages)
+    else:
+        raise ValueError(f"found {corpus_path} as the path. However only folders, json and PMCID are supported")
+    
+    base_corpus = BaseCorpus(corpus,
+                         ignore_non_contiguous_entities=ignore_non_contiguous_entities,
+                         ignore_normalization_identifiers=ignore_normalization_identifiers,
+                         solve_overlapping_passages=solve_overlapping_passages)
+    
+    return base_corpus
 
-	if args.normalize:
-		if not annotations:
-			annotations = Utils.readAnnotations()
-		meshList = Normalizer.normalize(annotations, goldStandard=gsAnn, test=args.test)
-		Utils.buildIndentificationSubmission(meshList)
-
-	if args.indexing:
-		if not meshList:
-			meshList = Utils.readAnnotations()
-		indexedChemicals = Indexer.index(meshList, goldStandard=gsIndexing, test=args.test)
-		Utils.buildIndexingSubmission(indexedChemicals)
-
-	print("Done!")
-main()
+if __name__ == "__main__":
+    
+    parser = argparse.ArgumentParser(description="")
+    parser.add_argument('source_directory',
+                        type=str,
+                        help='')
+    
+    configs = parser.add_argument_group('Global settings', 'This settings are related with the location of the files and directories.')
+    configs.add_argument('-s', '--settings', dest='settings', \
+                        type=str, default="src/settings.yaml", \
+                        help='The system settings file (default: settings.yaml)')
+    configs.add_argument('-a', '--annotator', default=False, action='store_true', \
+                         help='Flag to annotate the files (default: False)')
+    configs.add_argument('-n', '--normalizer', default=False, action='store_true', \
+                            help='Flag to normalize the detected concepts (default: False)')
+    configs.add_argument('-i', '--indexer', default=False, action='store_true', \
+                            help='Flag to index the detected concepts (default: False)')
+    
+    args = parser.parse_args()
+    
+    if not args.annotator and \
+       not args.normalizer and \
+       not args.indexer:
+        # by default lets assume that we want to run the full pipeline!
+        args.annotator, args.normalizer, args.indexer = True, True, True
+    
+    if (args.annotator, args.normalizer, args.indexer) in {(True, False, True)}:
+        print("It is not possible to run the indexer after the annotator module in this pipeline. Any other configuration is valid. ")
+        exit()
+    
+    # read the default settings
+    settings = read_settings(args.settings)
+    settings = cli_settings_override(args, settings)
+    print_current_configuration(settings)
+    
+    # load to baseCorpus
+    next_module_input = load_corpus(args.source_directory, **settings["ReadCollectionParams"])
+    
+    pipeline = [class_name(**settings[class_name.__name__]) for class_name, init in ((Annotator, args.annotator), (Normalizer, args.normalizer), (Indexer, args.indexer)) if init]
+    
+    for module in pipeline:
+        next_module_input = module.transform(next_module_input)
+        
+        
