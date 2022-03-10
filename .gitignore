@@ -4,9 +4,11 @@ __pycache__
 
 .polus_cache
 model_checkpoint
+mesh
 outputs
 datasets
 bc-venv
 local
 logs
+tools
 wandb

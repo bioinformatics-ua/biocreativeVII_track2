@@ -11,6 +11,14 @@ Annotator:
 Normalizer:
     write_output: True
     write_path: "outputs/normalizer"
+    ab3p_path: "tools/Ab3P/identify_abbr"
+    dictionary_dataset_augmentation: True
+    ab3p_abbreviation_expansion: True
+    use_embeddings_search: False
+    corpus_for_expansion:
+        - "datasets/NLMChem/BC7T2-NLMChem-corpus-train.BioC.json"
+        - "datasets/NLMChem/BC7T2-NLMChem-corpus-dev.BioC.json"
+        - "datasets/NLMChem/BC7T2-NLMChem-corpus-test.BioC.json"
 
 Indexer:
     write_output: True

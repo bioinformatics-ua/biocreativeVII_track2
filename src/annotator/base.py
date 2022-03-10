@@ -7,6 +7,7 @@ from annotator import modelsv2
 from annotator.data import short_checkpoint_names, bertseq_center_generator, document_generator, tokseqconcat_generator, SequenceDecoder
 from annotator.preprocessing import PUBMEDBERT_FULL, Tokenizer
 from annotator.utils import write_collections_to_file
+from annotator.corpora import BaseCorpus
 
 import tensorflow as tf
 import numpy as np
@@ -121,4 +122,5 @@ class Annotator(IModule):
         ## writhe the collections to disk
         if self.write_output:
             write_collections_to_file(collections, name = self.write_path)
-        return collections
+            
+        return BaseCorpus.from_dict(collections)[0]
