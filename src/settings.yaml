@@ -11,6 +11,21 @@ Annotator:
 Normalizer:
     write_output: True
     write_path: "outputs/normalizer"
+    ab3p_path: "tools/Ab3P/identify_abbr"
+    dictionary_dataset_augmentation: True
+    ab3p_abbreviation_expansion: True
+    # for adding more mesh dictionaries, edit the utils.dictionaryLoader method with your custom key and logic
+    mesh_dictionaries:
+        - "MeSH_Dxx"
+        - "SCR"
+    corpus_for_expansion:
+        - "datasets/NLMChem/BC7T2-NLMChem-corpus-train.BioC.json"
+        - "datasets/NLMChem/BC7T2-NLMChem-corpus-dev.BioC.json"
+        - "datasets/NLMChem/BC7T2-NLMChem-corpus-test.BioC.json"
+        #- "datasets/CDR/BC7T2-CDR-corpus-train.BioC.json"
+        #- "datasets/CDR/BC7T2-CDR-corpus-dev.BioC.json"
+        #- "datasets/CDR/BC7T2-CDR-corpus-test.BioC.json"
+    embedding_index: "mesh/full_Dsection_MeSH_dictionary_filteredSCR2021"
 
 Indexer:
     write_output: True

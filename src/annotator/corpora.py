@@ -225,7 +225,31 @@ class BaseCorpus(BaseLogger):
 
         for group, collection in self.collections.items():
             collection.add_metadata(self.__class__.__name__, group)
-    
+            
+    @classmethod     
+    def from_dict(cls, collections):
+        """
+        collections: {corpus_name:{group_name: Collection}}
+        """
+        
+        instances = []
+        
+        for corpus_name, corpus in collections.items():
+            
+            instance = cls({}, False, False, False)
+            
+            for group_name, collection in corpus.items():
+                instance.collections[group_name] = collection
+                instance.groups.append(group_name)
+                
+                instance.n_documents += collection.n_documents
+                instance.n_documents_per_group[group_name] = collection.n_documents
+                collection.add_metadata(cls.__name__, group_name)
+            
+            instances.append(instance)
+            
+        return instances
+
     def __contains__(self, key):
         return key in self.collections
     
