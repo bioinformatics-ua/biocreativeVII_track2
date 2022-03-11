@@ -116,9 +116,42 @@ mv datasets/DrugProt/drugprot-gs-training-development/DrugProtFiltered-training.
 mv datasets/DrugProt/drugprot-gs-training-development/DrugProtFiltered-development.json datasets/DrugProtFiltered/
 
 #
-# TODO: download the CTD chemical vocabulary file.
+# Download additional required data:
 #
+# (1) ctdbase/
+#     The CTD chemical vocabulary file. Required for creating the
+#     "NLMChemSyn" dataset (synthetic dataset).
+#
+# (2) mesh/
+#     MeSH dictionaries, and pre-trained SapBERT embeddings.
+#     Required for the normalization subtask.
+#
+# (3) model_checkpoint/
+#     Pre-trained model checkpoint for the entity recognition task.
+#
+# (4) tools/
+#     External tools (NCBITextLib and Ab3P) required for the
+#     normalization subtask.
+#
+URL_DATA="https://medstore1.myqnapcloud.com/share.cgi?ssid=41e5a2a9b1854105b69c26f4f8f94f62&fid=41e5a2a9b1854105b69c26f4f8f94f62&filename=data.zip&openfolder=forcedownload&ep="
+wget -nc -O data.zip $URL_DATA
+unzip -u data.zip
 
 #
-# TODO: download trained model weights.
+# Extract and compile the NCBITextLib and Ab3P tools.
 #
+unzip -u -d tools/ tools/NCBITextLib.zip
+unzip -u -d tools/ tools/Ab3P.zip
+
+cd tools/NCBITextLib/lib/
+make
+cd -
+
+NCBITEXTLIB="NCBITEXTLIB=\"$(pwd)/tools/NCBITextLib\""
+
+sed -i "1s|.*|$NCBITEXTLIB|" tools/Ab3P/Makefile
+sed -i "1s|.*|$NCBITEXTLIB|" tools/Ab3P/lib/Makefile
+
+cd tools/Ab3P/
+make
+cd -
