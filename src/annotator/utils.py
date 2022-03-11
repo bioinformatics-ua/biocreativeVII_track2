@@ -30,12 +30,12 @@ def get_temp_file(path="/backup/biocreative_extension_track2/temp_files/"):
     return file
 
 
-def write_collections_to_file(collections, path=None, name=None):
+def write_collections_to_file(collections, path=None, suffix="", name=None):
     
     for corpus in collections:
         for group in collections[corpus]:
             
-            _name = f"{corpus}_{group}.json"
+            _name = f"{corpus}_{group}{suffix}.json"
             
             if name is not None:
                 _name = os.path.join(name, _name)

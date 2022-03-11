@@ -1,6 +1,7 @@
 from core import IModule, load_corpus
 
 from normalizer.utils import dictionaryLoader, mapWithoutAb3P, mapWithoutAb3P_AugmentedDictionary, mapWithAb3P, mapWithAb3P_AugmentedDictionary
+from normalizer.embeddings import load_index, normalizer_by_threshold_v2, build_mesh_embedding_encoder
 from annotator.elements import merge_collections
 from annotator.utils import write_collections_to_file
 from annotator.corpora import BaseCorpus
@@ -18,8 +19,9 @@ class Normalizer(IModule):
                  ab3p_path,
                  dictionary_dataset_augmentation,
                  ab3p_abbreviation_expansion,
+                 mesh_dictionaries,
                  corpus_for_expansion,
-                 use_embeddings_search):
+                 embedding_index = None):
         super().__init__()
         self.write_output = write_output
         self.write_path = write_path
@@ -27,13 +29,14 @@ class Normalizer(IModule):
         self.dictionary_dataset_augmentation = dictionary_dataset_augmentation
         self.ab3p_abbreviation_expansion = ab3p_abbreviation_expansion
         self.ab3p_dict_level = "Corpus"
-        self.mesh_dictionaries = dictionaryLoader(["MeSH_Dxx","SCR"])
+        self.mesh_dictionaries = dictionaryLoader(mesh_dictionaries)
         self.corpus_for_expansion = corpus_for_expansion
-        self.use_embeddings_search = use_embeddings_search
+        self.embedding_index = embedding_index
         
-        if self.use_embeddings_search:
+        if self.embedding_index is not None:
             # init embeddings normalizer
-            pass
+            self.normalized_mesh_index, self.normalized_emb_matrix = load_index(self.embedding_index)
+            self.get_mesh_embedding = build_mesh_embedding_encoder()
 
     def normalize_collection(self, collection, train_collection):
         meshDictionary = self.mesh_dictionaries
@@ -53,8 +56,16 @@ class Normalizer(IModule):
         
         return outputs, mappedDocuments
     
-    def normalize_collection_wembeddings(self, collection):
-        pass
+    def normalize_collection_wembeddings(self, collection, CACHE_RESULT):
+        
+         return normalizer_by_threshold_v2(collection, 
+                                           self.normalized_emb_matrix, 
+                                           self.normalized_mesh_index, 
+                                           self.get_mesh_embedding,
+                                           CACHE_RESULT,
+                                           threshold=0.98, 
+                                           diff_threshold=0.06)
+
     
     def transform(self, corpus):
 
@@ -62,17 +73,19 @@ class Normalizer(IModule):
         train_collection = merge_collections(*train_collections)
         
         collections = defaultdict(dict)
+        embeddings_cache = {}
         
         for group, collection in corpus:
             output_collection, mappedDocuments = self.normalize_collection(collection, train_collection)
             
-            if self.use_embeddings_search:
-                output_collection = self.normalize_collection_wembeddings(output_collection)
+            if self.embedding_index is not None:
+                output_collection = self.normalize_collection_wembeddings(output_collection, CACHE_RESULT=embeddings_cache)
                 
             collections[output_collection.corpus][output_collection.group] = output_collection
         
         if self.write_output:
-            write_collections_to_file(collections, name = self.write_path)
+            _suffix = "" if self.embedding_index is None else "_wEmbeddings"
+            write_collections_to_file(collections, name = self.write_path, suffix=_suffix)
         
         return BaseCorpus.from_dict(collections)[0]
 
