@@ -34,8 +34,10 @@ def write_collections_to_file(collections, path=None, suffix="", name=None):
     
     for corpus in collections:
         for group in collections[corpus]:
-            
-            _name = f"{corpus}_{group}{suffix}.json"
+            if group.startswith("BaseCorpus"):
+                _name = f"{group}{suffix}.json"
+            else:
+                _name = f"{corpus}_{group}{suffix}.json"
             
             if name is not None:
                 _name = os.path.join(name, _name)
