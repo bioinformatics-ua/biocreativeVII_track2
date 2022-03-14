@@ -4,7 +4,7 @@ os.environ["POLUS_JIT"]="false"
 import argparse
 import pickle
 
-from normalizer.embeddings import build_normalized_index, build_mesh_embedding_encoder
+from normalizer.embeddings import build_normalized_index, build_mesh_embedding_encoder, mesh_from_file
 
 if __name__ == "__main__":
     
