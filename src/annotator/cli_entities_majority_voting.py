@@ -33,7 +33,7 @@ cwd = os.getcwd()
 cwd = os.path.normpath(cwd)
 parents = cwd.split(os.sep)
 
-if parents[-3:] != ['biocreativeVII_track2', 'src', 'annotator']:
+if parents[-2:] != ['src', 'annotator']:
     print()
     print('Your current working directory:')
     print('    {}'.format(os.path.join(cwd, '')))
@@ -102,13 +102,13 @@ for di in doc_ids:
     #
     # Sort the Normalized Entities according to the following three
     # criteria:
-    # (1) Entity span length. Larger spans have higher priority.
-    # (2) Start offset. Entities that appear first in the text have
+    # (1) Start offset. Entities that appear first in the text have
     #     higher priority.
+    # (2) Entity span length. Larger spans have higher priority.
     # (3) Counts. The number of collections in which the entity exists.
     #
-    sorted_ne_count_list = sorted(ne_count_list, key=lambda x: x['ne'].n_characters, reverse=True)
-    sorted_ne_count_list = sorted(sorted_ne_count_list, key=lambda x: x['ne'].start)
+    sorted_ne_count_list = sorted(ne_count_list, key=lambda x: x['ne'].start)
+    sorted_ne_count_list = sorted(sorted_ne_count_list, key=lambda x: x['ne'].n_characters, reverse=True)
     sorted_ne_count_list = sorted(sorted_ne_count_list, key=lambda x: x['count'], reverse=True)
     
     accepted_entities = list()
