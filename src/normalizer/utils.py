@@ -59,25 +59,24 @@ def mapWithoutAb3P(corpus, meshDictionary):
 
     for id, document in corpus:
         meshTupleList = list()
-        for passage in document:
-            for entity in passage.nes:
-                # print(entity.text, entity.identifiers)
-                #if entity.text in meshDictionary.keys():
-                if entity.text in meshDictionary.keys():
-                    if isinstance(meshDictionary[entity.text], list):
-                        meshCode = meshDictionary[entity.text]
-                        meshTupleList.append((meshCode, entity.span))
-                        entity.set_identifiers(meshCode)
-                        mapped+=1
-                    else:
-                        meshCode = "MESH:" + meshDictionary[entity.text]
-                        meshTupleList.append(([meshCode], entity.span))
-                        entity.set_identifiers([meshCode])
-                        mapped+=1
+        for entity in document.entities(sort=True):
+            # print(entity.text, entity.identifiers)
+            #if entity.text in meshDictionary.keys():
+            if entity.text in meshDictionary.keys():
+                if isinstance(meshDictionary[entity.text], list):
+                    meshCode = meshDictionary[entity.text]
+                    meshTupleList.append((meshCode, entity.span))
+                    entity.set_identifiers(meshCode)
+                    mapped+=1
                 else:
-                    meshTupleList.append((["-"], entity.span))
-                    entity.set_identifiers(["-"])
-                    unmapped+=1
+                    meshCode = "MESH:" + meshDictionary[entity.text]
+                    meshTupleList.append(([meshCode], entity.span))
+                    entity.set_identifiers([meshCode])
+                    mapped+=1
+            else:
+                meshTupleList.append((["-"], entity.span))
+                entity.set_identifiers(["-"])
+                unmapped+=1
             # print(entity.text)
         # print(entity.identifiers)
         # print(entity.text)
@@ -97,31 +96,30 @@ def mapWithoutAb3P_AugmentedDictionary(corpus, meshDictionary, test=False):
 
     for id, document in corpus:
         meshTupleList = list()
-        for passage in document:
-            for entity in passage.nes:
-                # print(entity.text, entity.identifiers)
-                #if entity.text in meshDict.keys():
-                if entity.text in meshDictionary.keys():
-                    if isinstance(meshDictionary[entity.text], list):
-                        meshCode = meshDictionary[entity.text]
-                        meshTupleList.append((meshCode, entity.span))
-                        entity.set_identifiers(meshCode)
-                        mapped+=1
-                    else:
-                        meshCode = "MESH:" + meshDictionary[entity.text]
-                        meshTupleList.append(([meshCode], entity.span))
-                        entity.set_identifiers([meshCode])
-                        mapped+=1
+        for entity in document.entities(sort=True):
+            # print(entity.text, entity.identifiers)
+            #if entity.text in meshDict.keys():
+            if entity.text in meshDictionary.keys():
+                if isinstance(meshDictionary[entity.text], list):
+                    meshCode = meshDictionary[entity.text]
+                    meshTupleList.append((meshCode, entity.span))
+                    entity.set_identifiers(meshCode)
+                    mapped+=1
                 else:
-                    if not test:
-                        meshDictionary[entity.text.lower()] = entity.identifiers
-                        meshTupleList.append((entity.identifiers, entity.span))
-                        entity.set_identifiers(entity.identifiers)
-                        mapped+=1
-                    else:
-                        meshTupleList.append((["-"], entity.span))
-                        entity.set_identifiers(["-"])
-                        unmapped+=1
+                    meshCode = "MESH:" + meshDictionary[entity.text]
+                    meshTupleList.append(([meshCode], entity.span))
+                    entity.set_identifiers([meshCode])
+                    mapped+=1
+            else:
+                if not test:
+                    meshDictionary[entity.text.lower()] = entity.identifiers
+                    meshTupleList.append((entity.identifiers, entity.span))
+                    entity.set_identifiers(entity.identifiers)
+                    mapped+=1
+                else:
+                    meshTupleList.append((["-"], entity.span))
+                    entity.set_identifiers(["-"])
+                    unmapped+=1
 
         mappedDocuments[id] = meshTupleList
     print("Mapped entries: {}".format(mapped))
@@ -160,41 +158,40 @@ def mapWithAb3P(ab3P_path, corpus, meshDictionary, ab3pDictLevel, abbreviationMa
                             except ValueError:
                                 pass
 
-                    for passage in document:
-                        for entity in passage.nes:
-                            # if entity.text in meshDict.keys():
-                            if entity.text.lower() in meshDictionary.keys():
-                                if isinstance(meshDictionary[entity.text.lower()], list):
-                                    meshCode = meshDictionary[entity.text.lower()]
+                    for entity in document.entities(sort=True):
+                        # if entity.text in meshDict.keys():
+                        if entity.text.lower() in meshDictionary.keys():
+                            if isinstance(meshDictionary[entity.text.lower()], list):
+                                meshCode = meshDictionary[entity.text.lower()]
+                                meshTupleList.append((meshCode, entity.span))
+                                entity.set_identifiers(meshCode)
+                                mapped+=1
+                            else:
+                                meshCode = "MESH:" + meshDictionary[entity.text.lower()]
+                                meshTupleList.append(([meshCode], entity.span))
+                                entity.set_identifiers([meshCode])
+                                mapped+=1
+                        elif entity.text.lower() in abbreviationMap.keys():
+                            text = abbreviationMap[entity.text.lower()]
+                            if text in meshDictionary.keys():
+                                if isinstance(meshDictionary[text], list):
+                                    meshCode = meshDictionary[text]
                                     meshTupleList.append((meshCode, entity.span))
                                     entity.set_identifiers(meshCode)
                                     mapped+=1
                                 else:
-                                    meshCode = "MESH:" + meshDictionary[entity.text.lower()]
+                                    meshCode = "MESH:" + meshDictionary[text]
                                     meshTupleList.append(([meshCode], entity.span))
                                     entity.set_identifiers([meshCode])
                                     mapped+=1
-                            elif entity.text.lower() in abbreviationMap.keys():
-                                text = abbreviationMap[entity.text.lower()]
-                                if text in meshDictionary.keys():
-                                    if isinstance(meshDictionary[text], list):
-                                        meshCode = meshDictionary[text]
-                                        meshTupleList.append((meshCode, entity.span))
-                                        entity.set_identifiers(meshCode)
-                                        mapped+=1
-                                    else:
-                                        meshCode = "MESH:" + meshDictionary[text]
-                                        meshTupleList.append(([meshCode], entity.span))
-                                        entity.set_identifiers([meshCode])
-                                        mapped+=1
-                                else:
-                                    meshTupleList.append((["-"], entity.span))
-                                    entity.set_identifiers(["-"])
-                                    unmapped+=1
                             else:
                                 meshTupleList.append((["-"], entity.span))
                                 entity.set_identifiers(["-"])
                                 unmapped+=1
+                        else:
+                            meshTupleList.append((["-"], entity.span))
+                            entity.set_identifiers(["-"])
+                            unmapped+=1
             finally:
                 os.remove(filePath)
 
@@ -231,41 +228,40 @@ def mapWithAb3P(ab3P_path, corpus, meshDictionary, ab3pDictLevel, abbreviationMa
 
         for id, document in corpus:
             meshTupleList = list()
-            for passage in document:
-                for entity in passage.nes:
-                    # if entity.text in meshDict.keys():
-                    if entity.text.lower() in meshDictionary.keys():
-                        if isinstance(meshDictionary[entity.text.lower()], list):
-                            meshCode = meshDictionary[entity.text.lower()]
+            for entity in document.entities(sort=True):
+                # if entity.text in meshDict.keys():
+                if entity.text.lower() in meshDictionary.keys():
+                    if isinstance(meshDictionary[entity.text.lower()], list):
+                        meshCode = meshDictionary[entity.text.lower()]
+                        meshTupleList.append((meshCode, entity.span))
+                        entity.set_identifiers(meshCode)
+                        mapped+=1
+                    else:
+                        meshCode = "MESH:" + meshDictionary[entity.text.lower()]
+                        meshTupleList.append(([meshCode], entity.span))
+                        entity.set_identifiers([meshCode])
+                        mapped+=1
+                elif entity.text.lower() in abbreviationMap.keys():
+                    text = abbreviationMap[entity.text.lower()]
+                    if text in meshDictionary.keys():
+                        if isinstance(meshDictionary[text], list):
+                            meshCode = meshDictionary[text]
                             meshTupleList.append((meshCode, entity.span))
                             entity.set_identifiers(meshCode)
                             mapped+=1
                         else:
-                            meshCode = "MESH:" + meshDictionary[entity.text.lower()]
+                            meshCode = "MESH:" + meshDictionary[text]
                             meshTupleList.append(([meshCode], entity.span))
                             entity.set_identifiers([meshCode])
                             mapped+=1
-                    elif entity.text.lower() in abbreviationMap.keys():
-                        text = abbreviationMap[entity.text.lower()]
-                        if text in meshDictionary.keys():
-                            if isinstance(meshDictionary[text], list):
-                                meshCode = meshDictionary[text]
-                                meshTupleList.append((meshCode, entity.span))
-                                entity.set_identifiers(meshCode)
-                                mapped+=1
-                            else:
-                                meshCode = "MESH:" + meshDictionary[text]
-                                meshTupleList.append(([meshCode], entity.span))
-                                entity.set_identifiers([meshCode])
-                                mapped+=1
-                        else:
-                            meshTupleList.append((["-"], entity.span))
-                            entity.set_identifiers(["-"])
-                            unmapped+=1
                     else:
                         meshTupleList.append((["-"], entity.span))
                         entity.set_identifiers(["-"])
                         unmapped+=1
+                else:
+                    meshTupleList.append((["-"], entity.span))
+                    entity.set_identifiers(["-"])
+                    unmapped+=1
 
             mappedDocuments[id] = meshTupleList
         print("Mapped entries: {}".format(mapped))
@@ -302,43 +298,32 @@ def mapWithAb3P_AugmentedDictionary(ab3P_path, corpus, meshDictionary, ab3pDictL
                             except ValueError:
                                 pass
 
-                    for passage in document:
-                        for entity in passage.nes:
-                            # if entity.text in meshDict.keys():
-                            if entity.text.lower() in meshDictionary.keys():
-                                if isinstance(meshDictionary[entity.text.lower()], list):
-                                    meshCode = meshDictionary[entity.text.lower()]
+                    for entity in document.entities(sort=True):
+                        # if entity.text in meshDict.keys():
+                        if entity.text.lower() in meshDictionary.keys():
+                            if isinstance(meshDictionary[entity.text.lower()], list):
+                                meshCode = meshDictionary[entity.text.lower()]
+                                meshTupleList.append((meshCode, entity.span))
+                                entity.set_identifiers(meshCode)
+                                mapped+=1
+                            else:
+                                meshCode = "MESH:" + meshDictionary[entity.text.lower()]
+                                meshTupleList.append(([meshCode], entity.span))
+                                entity.set_identifiers([meshCode])
+                                mapped+=1
+                        elif entity.text.lower() in abbreviationMap.keys():
+                            text = abbreviationMap[entity.text.lower()]
+                            if text in meshDictionary.keys():
+                                if isinstance(meshDictionary[text], list):
+                                    meshCode = meshDictionary[text]
                                     meshTupleList.append((meshCode, entity.span))
                                     entity.set_identifiers(meshCode)
                                     mapped+=1
                                 else:
-                                    meshCode = "MESH:" + meshDictionary[entity.text.lower()]
+                                    meshCode = "MESH:" + meshDictionary[text]
                                     meshTupleList.append(([meshCode], entity.span))
                                     entity.set_identifiers([meshCode])
                                     mapped+=1
-                            elif entity.text.lower() in abbreviationMap.keys():
-                                text = abbreviationMap[entity.text.lower()]
-                                if text in meshDictionary.keys():
-                                    if isinstance(meshDictionary[text], list):
-                                        meshCode = meshDictionary[text]
-                                        meshTupleList.append((meshCode, entity.span))
-                                        entity.set_identifiers(meshCode)
-                                        mapped+=1
-                                    else:
-                                        meshCode = "MESH:" + meshDictionary[text]
-                                        meshTupleList.append(([meshCode], entity.span))
-                                        entity.set_identifiers([meshCode])
-                                        mapped+=1
-                                else:
-                                    if not test:
-                                        meshDictionary[entity.text.lower()] = entity.identifiers
-                                        meshTupleList.append((entity.identifiers, entity.span))
-                                        entity.set_identifiers(entity.identifiers)
-                                        mapped+=1
-                                    else:
-                                        meshTupleList.append((["-"], entity.span))
-                                        entity.set_identifiers(["-"])
-                                        unmapped+=1
                             else:
                                 if not test:
                                     meshDictionary[entity.text.lower()] = entity.identifiers
@@ -349,6 +334,16 @@ def mapWithAb3P_AugmentedDictionary(ab3P_path, corpus, meshDictionary, ab3pDictL
                                     meshTupleList.append((["-"], entity.span))
                                     entity.set_identifiers(["-"])
                                     unmapped+=1
+                        else:
+                            if not test:
+                                meshDictionary[entity.text.lower()] = entity.identifiers
+                                meshTupleList.append((entity.identifiers, entity.span))
+                                entity.set_identifiers(entity.identifiers)
+                                mapped+=1
+                            else:
+                                meshTupleList.append((["-"], entity.span))
+                                entity.set_identifiers(["-"])
+                                unmapped+=1
             finally:
                 os.remove(filePath)
 
@@ -385,43 +380,32 @@ def mapWithAb3P_AugmentedDictionary(ab3P_path, corpus, meshDictionary, ab3pDictL
 
         for id, document in corpus:
             meshTupleList = list()
-            for passage in document:
-                for entity in passage.nes:
-                    # if entity.text in meshDict.keys():
-                    if entity.text.lower() in meshDictionary.keys():
-                        if isinstance(meshDictionary[entity.text.lower()], list):
-                            meshCode = meshDictionary[entity.text.lower()]
+            for entity in document.entities(sort=True):
+                # if entity.text in meshDict.keys():
+                if entity.text.lower() in meshDictionary.keys():
+                    if isinstance(meshDictionary[entity.text.lower()], list):
+                        meshCode = meshDictionary[entity.text.lower()]
+                        meshTupleList.append((meshCode, entity.span))
+                        entity.set_identifiers(meshCode)
+                        mapped+=1
+                    else:
+                        meshCode = "MESH:" + meshDictionary[entity.text.lower()]
+                        meshTupleList.append(([meshCode], entity.span))
+                        entity.set_identifiers([meshCode])
+                        mapped+=1
+                elif entity.text.lower() in abbreviationMap.keys():
+                    text = abbreviationMap[entity.text.lower()]
+                    if text in meshDictionary.keys():
+                        if isinstance(meshDictionary[text], list):
+                            meshCode = meshDictionary[text]
                             meshTupleList.append((meshCode, entity.span))
                             entity.set_identifiers(meshCode)
                             mapped+=1
                         else:
-                            meshCode = "MESH:" + meshDictionary[entity.text.lower()]
+                            meshCode = "MESH:" + meshDictionary[text]
                             meshTupleList.append(([meshCode], entity.span))
                             entity.set_identifiers([meshCode])
                             mapped+=1
-                    elif entity.text.lower() in abbreviationMap.keys():
-                        text = abbreviationMap[entity.text.lower()]
-                        if text in meshDictionary.keys():
-                            if isinstance(meshDictionary[text], list):
-                                meshCode = meshDictionary[text]
-                                meshTupleList.append((meshCode, entity.span))
-                                entity.set_identifiers(meshCode)
-                                mapped+=1
-                            else:
-                                meshCode = "MESH:" + meshDictionary[text]
-                                meshTupleList.append(([meshCode], entity.span))
-                                entity.set_identifiers([meshCode])
-                                mapped+=1
-                        else:
-                            if not test:
-                                meshDictionary[entity.text.lower()] = entity.identifiers
-                                meshTupleList.append((entity.identifiers, entity.span))
-                                entity.set_identifiers(entity.identifiers)
-                                mapped+=1
-                            else:
-                                meshTupleList.append((["-"], entity.span))
-                                entity.set_identifiers(["-"])
-                                unmapped+=1
                     else:
                         if not test:
                             meshDictionary[entity.text.lower()] = entity.identifiers
@@ -432,6 +416,16 @@ def mapWithAb3P_AugmentedDictionary(ab3P_path, corpus, meshDictionary, ab3pDictL
                             meshTupleList.append((["-"], entity.span))
                             entity.set_identifiers(["-"])
                             unmapped+=1
+                else:
+                    if not test:
+                        meshDictionary[entity.text.lower()] = entity.identifiers
+                        meshTupleList.append((entity.identifiers, entity.span))
+                        entity.set_identifiers(entity.identifiers)
+                        mapped+=1
+                    else:
+                        meshTupleList.append((["-"], entity.span))
+                        entity.set_identifiers(["-"])
+                        unmapped+=1
 
             mappedDocuments[id] = meshTupleList
         print("Mapped entries: {}".format(mapped))
