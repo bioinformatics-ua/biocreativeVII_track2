@@ -6,7 +6,7 @@
 set -e
 
 #
-# Download the NLM-Chem, NLM-Chem-Test, CDR, and CHEMDNER datasets.
+# Download the NLMChem, NLMChemTest, CDR, and CHEMDNER datasets.
 #
 
 NLMCHEM_GZ_FILE="BC7T2-NLMChem-corpus_v2.BioC.json.gz"
@@ -28,10 +28,8 @@ mkdir -p "datasets/CHEMDNER"
 
 cd "datasets/NLMChem"
 
-if [ ! -f "$NLMCHEM_GZ_FILE" ]; then
-    echo "Download $NLMCHEM_GZ_FILE"
-    wget $URL_NLMCHEM_GZ_FILE
-fi
+echo "Download $NLMCHEM_GZ_FILE"
+wget -nc $URL_NLMCHEM_GZ_FILE
 
 echo "Untar $NLMCHEM_GZ_FILE"
 tar -xf $NLMCHEM_GZ_FILE
@@ -40,10 +38,8 @@ cd -
 
 cd "datasets/NLMChemTest"
 
-if [ ! -f "$NLMCHEMTEST_GZ_FILE" ]; then
-    echo "Download $NLMCHEMTEST_GZ_FILE"
-    wget $URL_NLMCHEMTEST_GZ_FILE
-fi
+echo "Download $NLMCHEMTEST_GZ_FILE"
+wget -nc $URL_NLMCHEMTEST_GZ_FILE
 
 echo "Unzip $NLMCHEMTEST_GZ_FILE"
 gzip -dkf $NLMCHEMTEST_GZ_FILE
@@ -52,10 +48,8 @@ cd -
 
 cd "datasets/CDR"
 
-if [ ! -f "$CDR_GZ_FILE" ]; then
-    echo "Download $CDR_GZ_FILE"
-    wget $URL_CDR_GZ_FILE
-fi
+echo "Download $CDR_GZ_FILE"
+wget -nc $URL_CDR_GZ_FILE
 
 echo "Untar $CDR_GZ_FILE"
 tar -xf $CDR_GZ_FILE
@@ -64,10 +58,8 @@ cd -
 
 cd "datasets/CHEMDNER"
 
-if [ ! -f "$CHEMDNER_GZ_FILE" ]; then
-    echo "Download $CHEMDNER_GZ_FILE"
-    wget $URL_CHEMDNER_GZ_FILE
-fi
+echo "Download $CHEMDNER_GZ_FILE"
+wget -nc $URL_CHEMDNER_GZ_FILE
 
 echo "Untar $CHEMDNER_GZ_FILE"
 tar -xf $CHEMDNER_GZ_FILE
@@ -75,8 +67,10 @@ tar -xf $CHEMDNER_GZ_FILE
 cd -
 
 #
-# Get a PMCID-PMID mapping for the NLM-Chem and NLM-Chem-Test datasets.
+# Get a PMCID-PMID mapping for the NLMChem and NLMChemTest datasets.
 #
+
+echo "Create a PMCID-PMID mapping for the NLMChem and NLMChemTest datasets."
 
 cd "src/scripts"
 python3 get_nlmchem_nlmchemtest_pmids.py
@@ -90,18 +84,23 @@ cd -
 # test subset contain the ground-truth annotations.
 #
 
+DRUGPROT_ZIP_FILE="drugprot-training-development-test-background.zip"
+URL_DRUGPROT_ZIP_FILE="https://zenodo.org/record/5119892/files/$DRUGPROT_ZIP_FILE"
+
 mkdir -p "datasets/DrugProt"
 mkdir -p "datasets/DrugProtFiltered"
 
 cd "datasets/DrugProt"
 
-DRUGPROT_ZIP_FILE="drugprot-training-development-test-background.zip"
-URL_DRUGPROT_ZIP_FILE="https://zenodo.org/record/5119892/files/$DRUGPROT_ZIP_FILE"
+echo "Download $DRUGPROT_ZIP_FILE"
+wget -nc $URL_DRUGPROT_ZIP_FILE
 
-wget $URL_DRUGPROT_ZIP_FILE
-unzip $DRUGPROT_ZIP_FILE
+echo "Unzip $DRUGPROT_ZIP_FILE"
+unzip -u $DRUGPROT_ZIP_FILE
 
 cd -
+
+echo "Convert the DrugProt training and development subsets to JSON format."
 
 cd "src/scripts"
 python3 convert_drugprot_to_json.py ../../datasets/DrugProt/drugprot-gs-training-development/training/
@@ -122,20 +121,33 @@ mv datasets/DrugProt/drugprot-gs-training-development/DrugProtFiltered-developme
 #     The CTD chemical vocabulary file. Required for creating the
 #     "NLMChemSyn" dataset (synthetic dataset).
 #
-# (2) mesh/
+# (2) evaluation/
+#     The official evaluation script.
+#
+# (3) mesh/
 #     MeSH dictionaries, and pre-trained SapBERT embeddings.
 #     Required for the normalization subtask.
 #
-# (3) model_checkpoint/
+# (4) model_checkpoint/
 #     Pre-trained model checkpoint for the entity recognition task.
 #
-# (4) tools/
+# (5) tools/
 #     External tools (NCBITextLib and Ab3P) required for the
 #     normalization subtask.
 #
-URL_DATA="https://medstore1.myqnapcloud.com/share.cgi?ssid=41e5a2a9b1854105b69c26f4f8f94f62&fid=41e5a2a9b1854105b69c26f4f8f94f62&filename=data.zip&openfolder=forcedownload&ep="
-wget -nc -O data.zip $URL_DATA
+DATA_ZIP_FILE="data.zip"
+URL_DATA_ZIP_FILE="https://medstore1.myqnapcloud.com/share.cgi?ssid=41e5a2a9b1854105b69c26f4f8f94f62&fid=41e5a2a9b1854105b69c26f4f8f94f62&filename=$DATA_ZIP_FILE&openfolder=forcedownload&ep="
+
+echo "Download $DATA_ZIP_FILE"
+wget -nc -O data.zip $URL_DATA_ZIP_FILE
+
+echo "Unzip $DATA_ZIP_FILE"
 unzip -u data.zip
+
+#
+# Extract the official evaluation script.
+#
+unzip -u -d evaluation/BC7T2-evaluation_v3/ evaluation/BC7T2-evaluation_v3.zip
 
 #
 # Extract and compile the NCBITextLib and Ab3P tools.
