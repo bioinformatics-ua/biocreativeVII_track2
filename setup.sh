@@ -167,3 +167,5 @@ sed -i "1s|.*|$NCBITEXTLIB|" tools/Ab3P/lib/Makefile
 cd tools/Ab3P/
 make
 cd -
+
+echo "Setup finished successfully!"
