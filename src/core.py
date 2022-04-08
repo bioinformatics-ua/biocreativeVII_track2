@@ -2,8 +2,31 @@ import configparser
 import os 
 import traceback
 import glob
-from utils import download_from_PMC
+#from utils import download_from_PMC
 from annotator.corpora import BaseCorpus
+
+import json
+import requests
+import os
+
+def download_from_PMC(pmcid):
+    
+    URL = f"https://www.ncbi.nlm.nih.gov/research/bionlp/RESTful/pmcoa.cgi/BioC_json/{pmcid}/unicode"
+    
+    response = requests.get(URL)
+    
+    data = json.loads(response.text)
+    
+    path = os.path.join("datasets","PMC",f"BioC_{pmcid}.json")
+    
+    with open(path, "w") as f:
+        json.dump(data, f)
+    
+    return path
+    
+    
+
+
 
 class IModule():
     """
