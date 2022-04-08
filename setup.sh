@@ -102,17 +102,26 @@ cd -
 
 echo "Convert the DrugProt training and development subsets to JSON format."
 
-cd "src/scripts"
-python3 convert_drugprot_to_json.py ../../datasets/DrugProt/drugprot-gs-training-development/training/
-python3 convert_drugprot_to_json.py ../../datasets/DrugProt/drugprot-gs-training-development/development/
+DRUGPROT_TRAIN="datasets/DrugProt/DrugProt-training.json"
+DRUGPROT_DEVEL="datasets/DrugProt/DrugProt-development.json"
+DRUGPROTFILTERED_TRAIN="datasets/DrugProtFiltered/DrugProtFiltered-training.json"
+DRUGPROTFILTERED_DEVEL="datasets/DrugProtFiltered/DrugProtFiltered-development.json"
 
-cd -
+if [ ! -f "$DRUGPROT_TRAIN" ] || [ ! -f "$DRUGPROT_DEVEL" ] || [ ! -f "$DRUGPROTFILTERED_TRAIN" ] || [ ! -f "$DRUGPROTFILTERED_DEVEL" ]; then
 
-mv datasets/DrugProt/drugprot-gs-training-development/DrugProt-training.json datasets/DrugProt/
-mv datasets/DrugProt/drugprot-gs-training-development/DrugProt-development.json datasets/DrugProt/
+    cd "src/scripts"
+    python3 convert_drugprot_to_json.py ../../datasets/DrugProt/drugprot-gs-training-development/training/
+    python3 convert_drugprot_to_json.py ../../datasets/DrugProt/drugprot-gs-training-development/development/
 
-mv datasets/DrugProt/drugprot-gs-training-development/DrugProtFiltered-training.json datasets/DrugProtFiltered/
-mv datasets/DrugProt/drugprot-gs-training-development/DrugProtFiltered-development.json datasets/DrugProtFiltered/
+    cd -
+
+    mv datasets/DrugProt/drugprot-gs-training-development/DrugProt-training.json datasets/DrugProt/
+    mv datasets/DrugProt/drugprot-gs-training-development/DrugProt-development.json datasets/DrugProt/
+
+    mv datasets/DrugProt/drugprot-gs-training-development/DrugProtFiltered-training.json datasets/DrugProtFiltered/
+    mv datasets/DrugProt/drugprot-gs-training-development/DrugProtFiltered-development.json datasets/DrugProtFiltered/
+
+fi
 
 #
 # Download additional required data:
@@ -152,8 +161,8 @@ unzip -u -d evaluation/BC7T2-evaluation_v3/ evaluation/BC7T2-evaluation_v3.zip
 #
 # Extract and compile the NCBITextLib and Ab3P tools.
 #
-unzip -u -d tools/ tools/NCBITextLib.zip
-unzip -u -d tools/ tools/Ab3P.zip
+unzip -o -u -d tools/ tools/NCBITextLib.zip
+unzip -o -u -d tools/ tools/Ab3P.zip
 
 cd tools/NCBITextLib/lib/
 make
