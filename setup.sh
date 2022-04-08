@@ -29,7 +29,7 @@ mkdir -p "datasets/CHEMDNER"
 cd "datasets/NLMChem"
 
 echo "Download $NLMCHEM_GZ_FILE"
-wget -nc $URL_NLMCHEM_GZ_FILE
+wget -c $URL_NLMCHEM_GZ_FILE
 
 echo "Untar $NLMCHEM_GZ_FILE"
 tar -xf $NLMCHEM_GZ_FILE
@@ -39,7 +39,7 @@ cd -
 cd "datasets/NLMChemTest"
 
 echo "Download $NLMCHEMTEST_GZ_FILE"
-wget -nc $URL_NLMCHEMTEST_GZ_FILE
+wget -c $URL_NLMCHEMTEST_GZ_FILE
 
 echo "Unzip $NLMCHEMTEST_GZ_FILE"
 gzip -dkf $NLMCHEMTEST_GZ_FILE
@@ -49,7 +49,7 @@ cd -
 cd "datasets/CDR"
 
 echo "Download $CDR_GZ_FILE"
-wget -nc $URL_CDR_GZ_FILE
+wget -c $URL_CDR_GZ_FILE
 
 echo "Untar $CDR_GZ_FILE"
 tar -xf $CDR_GZ_FILE
@@ -59,7 +59,7 @@ cd -
 cd "datasets/CHEMDNER"
 
 echo "Download $CHEMDNER_GZ_FILE"
-wget -nc $URL_CHEMDNER_GZ_FILE
+wget -c $URL_CHEMDNER_GZ_FILE
 
 echo "Untar $CHEMDNER_GZ_FILE"
 tar -xf $CHEMDNER_GZ_FILE
@@ -93,7 +93,7 @@ mkdir -p "datasets/DrugProtFiltered"
 cd "datasets/DrugProt"
 
 echo "Download $DRUGPROT_ZIP_FILE"
-wget -nc $URL_DRUGPROT_ZIP_FILE
+wget -c $URL_DRUGPROT_ZIP_FILE
 
 echo "Unzip $DRUGPROT_ZIP_FILE"
 unzip -u $DRUGPROT_ZIP_FILE
@@ -139,7 +139,7 @@ DATA_ZIP_FILE="data.zip"
 URL_DATA_ZIP_FILE="https://medstore1.myqnapcloud.com/share.cgi?ssid=41e5a2a9b1854105b69c26f4f8f94f62&fid=41e5a2a9b1854105b69c26f4f8f94f62&filename=$DATA_ZIP_FILE&openfolder=forcedownload&ep="
 
 echo "Download $DATA_ZIP_FILE"
-wget -nc -O data.zip $URL_DATA_ZIP_FILE
+wget -c -O data.zip $URL_DATA_ZIP_FILE
 
 echo "Unzip $DATA_ZIP_FILE"
 unzip -u data.zip
