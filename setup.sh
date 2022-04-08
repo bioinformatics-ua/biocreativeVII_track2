@@ -145,7 +145,7 @@ fi
 #     normalization subtask.
 #
 DATA_ZIP_FILE="data.zip"
-URL_DATA_ZIP_FILE="https://medstore1.myqnapcloud.com/share.cgi?ssid=41e5a2a9b1854105b69c26f4f8f94f62&fid=41e5a2a9b1854105b69c26f4f8f94f62&filename=$DATA_ZIP_FILE&openfolder=forcedownload&ep="
+URL_DATA_ZIP_FILE="https://share.bioinformatics-ua.pt/share.cgi?ssid=41e5a2a9b1854105b69c26f4f8f94f62&fid=41e5a2a9b1854105b69c26f4f8f94f62&filename=$DATA_ZIP_FILE&openfolder=forcedownload&ep="
 
 echo "Download $DATA_ZIP_FILE"
 wget -c -O data.zip $URL_DATA_ZIP_FILE
