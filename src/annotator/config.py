@@ -13,7 +13,7 @@ ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)
 #
 # NLM-Chem corpus (directory path) and subsets (file paths).
 #
-
+print(ROOT)
 NLMCHEM = os.path.join(ROOT, 'datasets', 'NLMChem')
 
 NLMCHEM_GROUPS = {

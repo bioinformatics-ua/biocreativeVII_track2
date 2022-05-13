@@ -7,7 +7,8 @@ import h5py
 import types
 
 #import for refering to this file, used in the load_model method
-from polus.layers import CRF
+from annotator.layers import CRF
+
 from polus.core import BaseLogger, get_jit_compile
 from polus.models import from_config, split_bert_model, split_bert_model_from_checkpoint, SavableModel
 

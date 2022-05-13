@@ -9,6 +9,7 @@ from annotator.preprocessing import PUBMEDBERT_FULL, Tokenizer
 from annotator.utils import write_collections_to_file
 from annotator.corpora import BaseCorpus
 
+import os
 import tensorflow as tf
 import numpy as np
 
@@ -22,12 +23,15 @@ class Annotator(IModule):
                  write_output,
                  write_tags_output,
                  write_path,
+                 write_add_checkpoint_name,
                  cache_context_embeddings,
                  batch_size,
                  ):
         super().__init__()
         self.write_output = write_output
         self.write_tags_output = write_tags_output
+        if write_add_checkpoint_name:
+            self.suffix = f"_{os.path.splitext(os.path.basename(model_checkpoint))[0]}"
         self.write_path = write_path
         self.cache_context_embeddings = cache_context_embeddings
         self.batch_size = batch_size
@@ -83,7 +87,7 @@ class Annotator(IModule):
         return dataloaders
     
     def transform(self, base_corpus):
-        
+            
         sequence_decoder = SequenceDecoder([base_corpus])
         
         dataloaders = self.build_dataloaders(base_corpus)
@@ -116,11 +120,13 @@ class Annotator(IModule):
 
             # save the predicts to be used during ensemble
             if len(samples)>0:
-                np.save(f'{self.write_path}/{group}-docs_samples.npy', samples, allow_pickle=True, fix_imports=True)
+                np.save(f'{self.write_path}/{group}{self.suffix}-docs_samples.npy', samples, allow_pickle=True, fix_imports=True)
+        
+        
         
         collections = sequence_decoder.get_collections()
         ## writhe the collections to disk
         if self.write_output:
-            write_collections_to_file(collections, name = self.write_path)
+            write_collections_to_file(collections, name = self.write_path, suffix=self.suffix)
             
         return BaseCorpus.from_dict(collections)[0]

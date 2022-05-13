@@ -4,6 +4,7 @@ Annotator:
     # save the predicted tags in order to produce an ensamble run
     write_tags_output: True
     write_path: "outputs/annotator"
+    write_add_checkpoint_name: True
     # the contextualized embeddings from the BERT will be cached in disk (by the polus library) in .polus_cache/dataloaders
     cache_context_embeddings: True
     batch_size: 64
@@ -11,6 +12,7 @@ Annotator:
 Normalizer:
     write_output: True
     write_path: "outputs/normalizer"
+    skip_rule_based: False
     ab3p_path: "tools/Ab3P/identify_abbr"
     dictionary_dataset_augmentation: True
     ab3p_abbreviation_expansion: True
@@ -25,7 +27,7 @@ Normalizer:
         #- "datasets/CDR/BC7T2-CDR-corpus-train.BioC.json"
         #- "datasets/CDR/BC7T2-CDR-corpus-dev.BioC.json"
         #- "datasets/CDR/BC7T2-CDR-corpus-test.BioC.json"
-    embedding_index: "mesh/full_Dsection_MeSH_dictionary_filteredSCR2021"
+    #embedding_index: "mesh/full_Dsection_MeSH_dictionary_filteredSCR2021"
 
 Indexer:
     method: 1

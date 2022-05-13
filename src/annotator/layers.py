@@ -3,9 +3,10 @@
 
 import tensorflow as tf
 from tensorflow_addons.text import crf_log_likelihood, crf_decode
+from polus.core import BaseLogger
+import numpy as np
 
-
-class CRF(tf.keras.layers.Layer):
+class CRF(tf.keras.layers.Layer, BaseLogger):
     """
     #
     # Code from:
@@ -16,6 +17,7 @@ class CRF(tf.keras.layers.Layer):
     def __init__(self,
                  output_dim,
                  sparse_target=True,
+                 mask_impossible_transitions=None,
                  **kwargs):
         """    
         Args:
@@ -27,10 +29,14 @@ class CRF(tf.keras.layers.Layer):
             (batch_size, sentence length, output_dim)
         """
         super().__init__(**kwargs)
-        self.output_dim = int(output_dim) 
+        BaseLogger.__init__(self)
+        self.output_dim = int(output_dim)
         self.input_spec = tf.keras.layers.InputSpec(min_ndim=3)
         self.sequence_lengths = None
         self.transitions = None
+        self.mask_impossible_transitions = mask_impossible_transitions
+        
+        self.flatten_layer = tf.keras.layers.Flatten()
 
     def build(self, input_shape):
         assert len(input_shape) == 3
@@ -48,8 +54,17 @@ class CRF(tf.keras.layers.Layer):
                                            shape=[self.output_dim, self.output_dim],
                                            initializer='glorot_uniform',
                                            trainable=True)
+        
         super().build(input_shape)
-
+    
+    def get_transitions(self):
+        
+        if self.mask_impossible_transitions is not None:
+            return self.transitions * self.mask_impossible_transitions + tf.cast((tf.cast(1-self.mask_impossible_transitions, tf.int32)*-10000), tf.float32)
+            #return tf.keras.backend.in_train_phase(self.transitions, masked_transitions)
+        
+        return self.transitions
+    
     def call(self, inputs, sequence_lengths=None, training=None, **kwargs):
         sequences = tf.convert_to_tensor(inputs, dtype=self.dtype)
         if sequence_lengths is not None:
@@ -57,14 +72,14 @@ class CRF(tf.keras.layers.Layer):
             assert tf.convert_to_tensor(sequence_lengths).dtype == 'int32'
             seq_len_shape = tf.convert_to_tensor(sequence_lengths).get_shape().as_list()
             assert seq_len_shape[1] == 1
-            self.sequence_lengths = K.flatten(sequence_lengths)
+            self.sequence_lengths = self.flatten_layer(sequence_lengths)
         else:
             self.sequence_lengths = tf.ones(tf.shape(inputs)[0], dtype=tf.int32) * (
                 tf.shape(inputs)[1]
             )
 
         viterbi_sequence, _ = crf_decode(sequences,
-                                         self.transitions,
+                                         self.get_transitions(),
                                          self.sequence_lengths)
         
         output = tf.one_hot(viterbi_sequence, self.output_dim )
@@ -80,28 +95,35 @@ class CRF(tf.keras.layers.Layer):
                 y_pred,
                 tf.argmax(y_true, axis=-1, output_type=tf.dtypes.int32),
                 self.sequence_lengths,
-                transition_params=self.transitions,
+                transition_params=self.get_transitions(),
             )
             
             return tf.reduce_mean(-log_likelihood)
         return crf_loss
     
-    @property
-    def loss_sample_weights(self):
-
+    def loss_sample_weights(self, mask_positive_classes, negative_weight):
+        """
+        sample_weight_vector:  list - array that contains the weight per class, which will be multiplied by all the predictions in a sequence 
+        
+        """
+        
         def crf_loss(y_true, y_pred):
 
             log_likelihood, _ = crf_log_likelihood(
                 y_pred,
                 tf.argmax(y_true, axis=-1, output_type=tf.dtypes.int32),
                 self.sequence_lengths,
-                transition_params=self.transitions,
+                transition_params=self.get_transitions(),
             )
             
-            per_sample = tf.reduce_sum(2* y_true * [0,0,1,0], axis=[-2,-1]) + tf.reduce_sum(y_true * [0,0,0,1], axis=[-2,-1])
-            sample_weight = tf.math.log(per_sample+1)
+            positive_samples = y_true * mask_positive_classes
             
-            loss_per_sample = -log_likelihood * sample_weight
+            negative_mask = tf.math.reduce_all(positive_samples == 0, axis=[-2,-1])
+            negative_weight_per_sample = tf.cast(negative_mask, tf.float32) * negative_weight
+            
+            sample_weights = tf.cast(tf.math.reduce_any(positive_samples == 1, axis=[-2,-1]), tf.float32) + negative_weight_per_sample
+            
+            loss_per_sample = -log_likelihood * sample_weights
             
             return tf.reduce_mean(loss_per_sample)
         return crf_loss
@@ -115,7 +137,7 @@ class CRF(tf.keras.layers.Layer):
             'output_dim': self.output_dim,
             'sparse_target': self.sparse_target,
             'supports_masking': self.supports_masking,
-            'transitions': K.eval(self.transitions)
+            'transitions': self.transitions
         }
         base_config = super(CRF, self).get_config()
         return dict(base_config, **config)

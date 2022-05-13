@@ -3,6 +3,7 @@ from indexer.utils import simplify_format
 from annotator.utils import write_collections_to_file
 from annotator.corpora import BaseCorpus
 from collections import defaultdict
+import json
 
 class Indexer(IModule):
     
@@ -36,6 +37,10 @@ class Indexer(IModule):
         for group, collection in inputs:
             
             mesh = simplify_format(collection)
+            
+            # debug remove this!!
+            #with open(f"{self.write_path}/only_mesh_{collection.corpus}_{collection.group}", "w") as f:
+            #    json.dump(mesh,f)
             
             indexed_collection = self.process(collection, mesh)
         
