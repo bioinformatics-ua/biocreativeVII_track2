@@ -16,6 +16,7 @@ class Normalizer(IModule):
     def __init__(self, 
                  write_output,
                  write_path,
+                 skip_rule_based,
                  ab3p_path,
                  dictionary_dataset_augmentation,
                  ab3p_abbreviation_expansion,
@@ -32,6 +33,7 @@ class Normalizer(IModule):
         self.mesh_dictionaries = dictionaryLoader(mesh_dictionaries)
         self.corpus_for_expansion = corpus_for_expansion
         self.embedding_index = embedding_index
+        self.skip_rule_based = skip_rule_based
         
         if self.embedding_index is not None:
             # init embeddings normalizer
@@ -75,8 +77,9 @@ class Normalizer(IModule):
         collections = defaultdict(dict)
         embeddings_cache = {}
         
-        for group, collection in corpus:
-            output_collection, mappedDocuments = self.normalize_collection(collection, train_collection)
+        for group, output_collection in corpus:
+            if not self.skip_rule_based:
+                output_collection, mappedDocuments = self.normalize_collection(output_collection, train_collection)
             
             if self.embedding_index is not None:
                 output_collection = self.normalize_collection_wembeddings(output_collection, CACHE_RESULT=embeddings_cache)

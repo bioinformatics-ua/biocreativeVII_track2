@@ -1,6 +1,9 @@
 import argparse
 import json
 
+import sys
+sys.path.extend(["..","src"])
+
 import tensorflow as tf
 import tensorflow_addons as tfa
 import numpy as np
@@ -24,7 +27,7 @@ import modelsv2
 from utils import get_temp_file, write_collections_to_file
 from data import short_checkpoint_names, bertseq_left_generator, bertseq_center_generator, tokseq_generator, sentence_generator, passage_generator, document_generator, selector_generator, bertseq_left128_generator, SequenceDecoder
 from losses import sum_cross_entropy, weighted_cross_entropy, sample_weighted_cross_entropy
-from corpora import NLMChemCorpus, NLMChemTestCorpus, CDRCorpus, CHEMDNERCorpus, DrugProtFilteredCorpus, BC5CDRCorpus, CRAFTCorpus, BioNLP11IDCorpus, BioNLP13CGCorpus, BioNLP13PCCorpus
+from corpora import NLMChemCorpus, NLMChemTestCorpus, CDRCorpus, CHEMDNERCorpus, DrugProtFilteredCorpus
 from preprocessing import Tokenizer, PUBMEDBERT_FULL, SAPBERT
 from metrics import EntityF1, EntityReconstructedF1
 
@@ -37,6 +40,9 @@ if __name__ == "__main__":
     
     parser = argparse.ArgumentParser(description='Ensemble script')
     parser.add_argument("--predicts", nargs='+', type=str, help="Numpy file with the predictions", required=True)
+    parser.add_argument("--corpus", default=None)
+    parser.add_argument("--group", default=None)
+    parser.add_argument("--output_folder", default=None)
     
     args = parser.parse_args()
     
@@ -47,7 +53,11 @@ if __name__ == "__main__":
     for predicts_path in args.predicts:
         
         print(" - Loading", predicts_path)
-        name.append(predicts_path.split("/")[-1].split("run")[0][:-1])
+        #print(predicts_path.split("/")[-1])
+        #print(predicts_path.split("/")[-1].split("_")[-2])
+        #print(predicts_path.split("/")[-1].split("_")[-1].split("-")[:3])
+        #exit()
+        name.append("-".join(predicts_path.split("/")[-1].split("_")[-2].split("-")[:3]))
         docs_pred = np.load(predicts_path, allow_pickle=True, fix_imports=True)
         
         for i, _sample in enumerate(map(convert_to_tensor, docs_pred)):
@@ -57,8 +67,14 @@ if __name__ == "__main__":
             else:
                 _sample["tags_int_pred"] = tf.one_hot(_sample["tags_int_pred"], depth=4)
             
-            samples[i] = _sample
+            if args.corpus is not None:
+                _sample['corpus'] = tf.convert_to_tensor([args.corpus]*_sample['corpus'].shape[0])
             
+            if args.group is not None:
+                _sample['group'] = tf.convert_to_tensor([args.group]*_sample['corpus'].shape[0])
+            
+            samples[i] = _sample
+
         del docs_pred
         gc.collect()
     
@@ -72,18 +88,22 @@ if __name__ == "__main__":
         number_of_draws += tf.reduce_sum(tf.cast(values[:,:,0] == values[:,:,1], tf.int32)).numpy()
         
         samples[i]["tags_int_pred"] = tf.argmax(samples[i]["tags_int_pred"], axis=-1, output_type=tf.int32)
+        
         sequence_decoder.samples_from_batch(samples[i])
     
     print("number of draws", number_of_draws)
     
-    name = "|".join(name)
+    name = "_"+"_".join(name)
     
     collections = sequence_decoder.get_collections()
     
-    _name = f"runs/{name}"
+    if args.output_folder is None:
+        output_folder = "runs"
+    else:
+        output_folder = args.output_folder
     
-    print(f"Writting to {_name}")
-    write_collections_to_file(collections, name = _name)
+    #print(f"Writting to {_name}")
+    write_collections_to_file(collections, suffix = name, name=output_folder)
 
     
     #_f1 = sequence_decoder.evaluate_ner()['f1']

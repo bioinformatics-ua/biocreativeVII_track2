@@ -133,3 +133,23 @@ def normalizer_by_threshold_v2(collection, normalized_emb_matrix, normalized_mes
                 #        normalized_entities[doc_id].add(mesh)
 
     return collection
+
+
+def mesh_from_file(*files, collections=None):
+
+    index_mesh = {}
+    for file in files:
+        with open(file) as f:
+            for data in json.load(f):
+                index_mesh[f'MESH:{data["DescriptorUI"]}'] = data
+    
+    if collections is not None:
+        #diff_mesh = set(collections_mesh.keys())-set(index_mesh.keys())
+        #print(len(diff_mesh), sum([collections_mesh[mesh] for mesh in diff_mesh]))
+        for collection in (collections + [merge_collections(*collections)]):
+
+            normalized_entities = perfect_normalizer(collection, index_mesh)
+
+            print(evaluation(collection, normalized_entities))
+            
+    return index_mesh

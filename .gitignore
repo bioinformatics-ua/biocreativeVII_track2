@@ -3,12 +3,16 @@ __pycache__
 .vscode
 
 .polus_cache
-model_checkpoint
-mesh
-outputs
+biocreative
+ctdbase
 datasets
-bc-venv
+evaluation
 local
 logs
+mesh
+model_checkpoint
+outputs
 tools
 wandb
+
+data.zip

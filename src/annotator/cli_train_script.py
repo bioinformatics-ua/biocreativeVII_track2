@@ -1,7 +1,14 @@
+import sys
+
+sys.path.extend([".."])
+
 import argparse
 import json
 
 import tensorflow as tf
+#gpus = tf.config.experimental.list_physical_devices('GPU')
+#print(gpus)
+#tf.config.experimental.set_memory_growth(gpus[0], True)
 import tensorflow_addons as tfa
 
 import glob
@@ -22,7 +29,7 @@ import modelsv2
 from utils import get_temp_file
 from data import short_checkpoint_names, bertseq_left_generator, bertseq_center_generator, tokseq_generator, sentence_generator, passage_generator, document_generator, selector_generator, bertseq_left128_generator, tokseqconcat_generator, random_augmentation, ShufflerAugmenter, NoiseAugmenter
 from losses import sum_cross_entropy, weighted_cross_entropy, sample_weighted_cross_entropy
-from corpora import NLMChemCorpus, CDRCorpus, CHEMDNERCorpus, DrugProtFilteredCorpus, BC5CDRCorpus, CRAFTCorpus, BioNLP11IDCorpus, BioNLP13CGCorpus, BioNLP13PCCorpus, BaseCorpus
+from corpora import NLMChemCorpus, CDRCorpus, CHEMDNERCorpus, DrugProtFilteredCorpus, BaseCorpus
 from preprocessing import Tokenizer, PUBMEDBERT_FULL, SAPBERT
 from metrics import EntityF1, EntityF1DocAgreement
 from config import ROOT
@@ -48,16 +55,21 @@ if __name__ == "__main__":
     parser.add_argument("-train_datasets", nargs='+', default=[], type=str, help="Flag to add the training datasets")
     parser.add_argument("-test_datasets", nargs='+', default=[], type=str, help="Flag to add the test datasets")
     parser.add_argument("-train_w_test", action='store_true', help="Flag to train with the test data")
-    parser.add_argument("-wandb", type=str, default="[Extension] Biocreative Track2 NER - last week train", help="WandB project name")
+    parser.add_argument("-use_nlmchem_test_syn", action='store_true', help="Flag to train with the test data")
+    parser.add_argument("-wandb", type=str, default=None, help="WandB project name")
     args = parser.parse_args()
     
-    
-    NLMCHEMSYN_PATH = os.path.join(ROOT, 'local', 'datasets', 'NLMChemSyn', 'NLMChemSyn-train_dev-r0.7-300docs', 'unique.json')
-
+    if args.use_nlmchem_test_syn:
+        KEY = "train_dev_test-r0.5-300docs"#"train_dev_test-r0.5-450docs"
+    else:
+        KEY = "train_dev-r0.5-200docs"
+        
+    NLMCHEMSYN_PATH = os.path.join(ROOT, 'datasets', 'NLMChemSyn', f'NLMChemSyn-{KEY}', 'unique.json')
+        
     class NLMChemSynCorpus(BaseCorpus):
 
         def __init__(self):
-            super().__init__({'unique': NLMCHEMSYN_PATH},
+            super().__init__({KEY: NLMCHEMSYN_PATH},
                              ignore_non_contiguous_entities=False,
                              ignore_normalization_identifiers=False,
                              solve_overlapping_passages=False)
@@ -68,10 +80,10 @@ if __name__ == "__main__":
         "CDR": CDRCorpus,
         "CHEMDNER": CHEMDNERCorpus,
         "DrugProt": DrugProtFilteredCorpus,
-        "CRAFT": CRAFTCorpus,
-        "BioNLP11": BioNLP11IDCorpus,
-        "BioNLP13CG": BioNLP13CGCorpus,
-        "BioNLP13PC": BioNLP13PCCorpus,
+        #"CRAFT": CRAFTCorpus,
+        #"BioNLP11": BioNLP11IDCorpus,
+        #"BioNLP13CG": BioNLP13CGCorpus,
+        #"BioNLP13PC": BioNLP13PCCorpus,
     }
     
     assert len(args.train_datasets)>0
@@ -186,7 +198,8 @@ if __name__ == "__main__":
             if args.train_w_test and "test" in dataloaders[dataset_n]:
                 train_dls.append(dataloaders[dataset_n]["test"])
         else:
-            train_dls.append(dataloaders[dataset_n]["unique"])
+            # NLMChemSyn
+            train_dls.append(dataloaders[dataset_n][KEY])
             
     #prepare data to be logged
     additional_info = {}
@@ -349,8 +362,10 @@ if __name__ == "__main__":
     
     callbacks += validation_callbacks
     
+    if args.wandb is not None:
+        callbacks += [WandBLogCallback(args.wandb, args, entity='bitua', additional_info = additional_info)]
+    
     callbacks += [SaveModelCallback("end", cache_folder=os.path.join(PATH_CACHE, "saved_models")),
-                 WandBLogCallback(args.wandb, args, entity='bitua', additional_info = additional_info),
                  ConsoleLogCallback(), # Prints the training on the console
                  EarlyStop(),
                 ]
