@@ -32,10 +32,34 @@ Finally, execute the `setup.sh` file in order to download and prepare the requir
 $ ./setup.sh
 ```
 
+### How to run
+
+By default the pipeline will perform the annotation, normalization and indexing of a given PMC documents or collection of documents following the BioC format, as presented below:
+
+- Given a PMC identifier
+	```
+	$ python src/main.py PMC8524328
+	```
+	The pipeline will try to download the article with the identifier PMC8524328 and store it under the `datasets` folder, then it will proceed to the annotation, normalization and indexing, outputing the resulting files under the `outputs` folder.
+
+
+- Given a Bio.json file that may contain more that one article:
+	```
+	$ python src/main.py datasets/NLMChem/BC7T2-NLMChem-corpus-train.BioC.json
+	```
+- Given a folder that contains BioC.json files:
+	```
+	$ python src/main.py datasets/NLMChem
+	```
+	Here the pipeline will individually run each of the BioC files found under the given directory.
+    
+Note: It is advisible the availability of a GPU for speeding up the annotation procedure.
 
 ### Documentation
 
-to do
+By default the pipeline will use all the configurations under the `src/settings.yaml` file. However it is also possible to hot changing some of the configurations by using the command line interface.
+
+TODO COMPLETE
 
 
 ### Team

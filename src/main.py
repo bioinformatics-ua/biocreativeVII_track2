@@ -24,33 +24,22 @@ def cli_settings_override(args, settings):
     
     Not implemented...
     """
-    if args.annotator_model_checkpoint is not None:
-        settings["Annotator"]["model_checkpoint"] = args.annotator_model_checkpoint
-    if args.annotator_write_path is not None:
-        settings["Annotator"]["write_path"] = args.annotator_write_path
     
-    if args.normalizer_skip_rule_based is not None:
-        settings["Normalizer"]["skip_rule_based"] = args.normalizer_skip_rule_based
-    if args.normalizer_write_path is not None:
-        settings["Normalizer"]["write_path"] = args.normalizer_write_path
-    
-    if args.indexer_write_path is not None:
-        settings["Indexer"]["write_path"] = args.indexer_write_path
-    if args.indexer_min_occur_captions is not None:
-        settings["Indexer"]["min_occur_captions"] = args.indexer_min_occur_captions
-    if args.indexer_min_occur_abstract is not None:
-        settings["Indexer"]["min_occur_abstract"] = args.indexer_min_occur_abstract
-    if args.indexer_min_occur_title is not None:
-        settings["Indexer"]["min_occur_title"] = args.indexer_min_occur_title
-    if args.indexer_min_occur_concl is not None:
-        settings["Indexer"]["min_occur_concl"] = args.indexer_min_occur_concl
-    if args.indexer_method is not None:
-        settings["Indexer"]["method"] = args.indexer_method
-    
+    for var, value in vars(args).items():
+        
+        if value is None:
+            continue
+            
+        if var.startswith("annotator_"):
+            settings["Annotator"][var[10:]] = value
+        elif var.startswith("normalizer_"):
+            settings["Normalizer"][var[11:]] = value
+        elif var.startswith("indexer_"):
+            settings["Indexer"][var[8:]] = value
     
     return settings
     
-def print_current_configuration(settings, tab=""):
+def print_current_configuration(args, settings, tab=""):
     if tab=="":
         print()
         print("Settings:")
@@ -58,6 +47,11 @@ def print_current_configuration(settings, tab=""):
         print()
     else:
         for k,v in settings.items():
+            if k=="Annotator" and not args.annotator \
+               or k=="Normalizer" and not args.normalizer \
+               or k=="Indexer" and not args.indexer:
+                # only print the configurations of the modules that will be used
+                continue
             if isinstance(v, dict):
                 print(f"{tab}{k}:")
                 print_current_configuration(v, tab=tab+"\t")
@@ -88,18 +82,41 @@ if __name__ == "__main__":
     annotator_configs.add_argument('--annotator.model_checkpoint', dest='annotator_model_checkpoint', \
                                  type=str, default=None, \
                                  help='The annotator model cfg path')
+    annotator_configs.add_argument('--annotator.write_output', dest='annotator_write_output', \
+                                 default=None, \
+                                 help='Flag that signals if this module would write the produced annotated files')
     annotator_configs.add_argument('--annotator.write_path', dest='annotator_write_path', \
                                  type=str, default=None, \
                                  help='Path where to write the model')
+    annotator_configs.add_argument('--annotator.write_add_checkpoint_name', dest='annotator_write_add_checkpoint_name', \
+                                 default=None, \
+                                 help='Flag that signals if the model_checkpoint name will be appended to the output file name. (boolean parameter)')
+    annotator_configs.add_argument('--annotator.cache_context_embeddings', dest='annotator_cache_context_embeddings', \
+                                 default=None, \
+                                 help='Flag that signals if the contextualized embeddings will be stored in disk. (boolean parameter)')
+    annotator_configs.add_argument('--annotator.batch_size', dest='annotator_batch_size', \
+                                 default=None, \
+                                 help='Number of samples that are fed for the neural bio tagger')
     
     normalizer_configs = parser.add_argument_group('Normalizer settings', 'This settings are related to the normalizer module.')
     normalizer_configs.add_argument('--normalizer.skip_rule_based', dest='normalizer_skip_rule_based', \
-                                 action='store_true', default=None, \
-                                 help='The annotator model cfg path')
+                                 default=None, \
+                                 help='Flag that signals the use of the rule based normalization')
     normalizer_configs.add_argument('--normalizer.write_path', dest='normalizer_write_path', \
-                                 type=str, default=None, \
-                                 help='Path where to write the model')
-    
+                                 default=None, \
+                                 help='Path where to write the normalized corpus')
+    normalizer_configs.add_argument('--normalizer.write_output', dest='normalizer_write_output', \
+                                 default=None, \
+                                 help='Flag that signals if this module would write the produced annotated files')
+    normalizer_configs.add_argument('--normalizer.ab3p_path', dest='normalizer_ab3p_path', \
+                                 default=None, \
+                                 help='Path to the ab3p tool, used for the rule-based normalization')
+    normalizer_configs.add_argument('--normalizer.dictionary_dataset_augmentation', dest='normalizer_dictionary_dataset_augmentation', \
+                                 default=None, \
+                                 help='Flag to do dataset augmentation, used for the rule-based normalization. (boolean parameter)')
+    normalizer_configs.add_argument('--normalizer.ab3p_abbreviation_expansion', dest='normalizer_ab3p_abbreviation_expansion', \
+                                 default=None, \
+                                 help='Flag to perform the ab3p abbreviation. (boolean parameter)')
     
     indexer_configs = parser.add_argument_group('Indexer settings', 'This settings are related to the indexer module.')
     indexer_configs.add_argument('--indexer.write_path', dest='indexer_write_path', \
@@ -136,7 +153,7 @@ if __name__ == "__main__":
     # read the default settings
     settings = read_settings(args.settings)
     settings = cli_settings_override(args, settings)
-    print_current_configuration(settings)
+    print_current_configuration(args, settings)
     
     # load to baseCorpus
     next_module_input = load_corpus(args.source_directory, **settings["ReadCollectionParams"])

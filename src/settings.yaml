@@ -27,7 +27,7 @@ Normalizer:
         #- "datasets/CDR/BC7T2-CDR-corpus-train.BioC.json"
         #- "datasets/CDR/BC7T2-CDR-corpus-dev.BioC.json"
         #- "datasets/CDR/BC7T2-CDR-corpus-test.BioC.json"
-    #embedding_index: "mesh/full_Dsection_MeSH_dictionary_filteredSCR2021"
+    embedding_index: "mesh/full_Dsection_MeSH_dictionary_filteredSCR2021"
 
 Indexer:
     method: 1
