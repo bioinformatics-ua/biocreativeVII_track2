@@ -1,5 +1,11 @@
 Annotator:
-    model_checkpoint: "model_checkpoint/mild-water-7.cfg"
+    model_checkpoint:
+        - "model_checkpoint/legendary-frost-1.cfg"
+        - "model_checkpoint/dainty-night-2.cfg"
+        - "model_checkpoint/skilled-plant-3.cfg"
+        - "model_checkpoint/comfy-wildflower-4.cfg"
+        - "model_checkpoint/avid-dew-5.cfg"
+    majority_voting_mode: "entity-level" # tag-level
     write_output: True
     # save the predicted tags in order to produce an ensamble run
     write_tags_output: True

@@ -32,6 +32,8 @@ def get_temp_file(path="/backup/biocreative_extension_track2/temp_files/"):
 
 def write_collections_to_file(collections, path=None, suffix="", name=None):
     
+    files_names = []
+    
     for corpus in collections:
         for group in collections[corpus]:
             if group.startswith("BaseCorpus"):
@@ -47,5 +49,8 @@ def write_collections_to_file(collections, path=None, suffix="", name=None):
             
             with open(_name, "w") as f:
                 print(f"writing {corpus} {group} to {_name}")
+                files_names.append(_name)
                 f.write(collections[corpus][group].pretty_json())
+                
+    return files_names
     
