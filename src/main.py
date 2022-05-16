@@ -5,11 +5,6 @@ os.environ["TOKENIZERS_PARALLELISM"]="false"
 import argparse
 import yaml
 
-from annotator.base import Annotator
-from annotator.corpora import BaseCorpus
-from normalizer.base import Normalizer
-from indexer.base import Indexer
-from core import load_corpus
 
 import traceback
 import glob
@@ -80,7 +75,7 @@ if __name__ == "__main__":
     
     annotator_configs = parser.add_argument_group('Annotator settings', 'This settings are related to the indexer module.')
     annotator_configs.add_argument('--annotator.model_checkpoint', dest='annotator_model_checkpoint', \
-                                 type=str, default=None, \
+                                 type=str, nargs='+', default=None, \
                                  help='The annotator model cfg path')
     annotator_configs.add_argument('--annotator.write_output', dest='annotator_write_output', \
                                  default=None, \
@@ -139,6 +134,14 @@ if __name__ == "__main__":
                                  help='The indexer method')
     
     args = parser.parse_args()
+    
+    # hot import for allowing to access the help in a fast-way possible
+    from annotator.base import Annotator
+    from annotator.corpora import BaseCorpus
+    from normalizer.base import Normalizer
+    from indexer.base import Indexer
+    from core import load_corpus
+
     
     if not args.annotator and \
        not args.normalizer and \
