@@ -14,9 +14,9 @@ from annotator.elements import merge_collections
 # Input JSON filepaths.
 #
 filepaths = [
-    '../../outputs/normalizer/BaseCorpus_BC7T2-NLMChem-corpus-train.BioC_wEmbeddings.json',
-    '../../outputs/normalizer/BaseCorpus_BC7T2-NLMChem-corpus-dev.BioC_wEmbeddings.json',
-    '../../outputs/normalizer/BaseCorpus_BC7T2-NLMChem-corpus-test.BioC_wEmbeddings.json',
+    '../../datasets/NLMChem/BC7T2-NLMChem-corpus-train.BioC.json',
+    '../../datasets/NLMChem/BC7T2-NLMChem-corpus-dev.BioC.json',
+    '../../datasets/NLMChem/BC7T2-NLMChem-corpus-test.BioC.json',
 ]
 
 #

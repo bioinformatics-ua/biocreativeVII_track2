@@ -43,7 +43,7 @@ def print_current_configuration(args, settings, tab=""):
     if tab=="":
         print()
         print("Settings:")
-        print_current_configuration(settings, tab="\t")
+        print_current_configuration(args, settings, tab="\t")
         print()
     else:
         for k,v in settings.items():
@@ -54,7 +54,7 @@ def print_current_configuration(args, settings, tab=""):
                 continue
             if isinstance(v, dict):
                 print(f"{tab}{k}:")
-                print_current_configuration(v, tab=tab+"\t")
+                print_current_configuration(args, v, tab=tab+"\t")
             else:
                 print(tab,k,"=",v)
 
