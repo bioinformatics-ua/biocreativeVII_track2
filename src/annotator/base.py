@@ -9,6 +9,7 @@ from annotator.preprocessing import PUBMEDBERT_FULL, Tokenizer
 from annotator.utils import write_collections_to_file
 from annotator.corpora import BaseCorpus, Collection
 from annotator.elements import span_overlaps_span
+from annotator.cli_entities_majority_voting import majority_voting_entity_level
 
 from collections import defaultdict
 from copy import deepcopy
@@ -146,69 +147,6 @@ class Annotator(IModule):
             files_names = write_collections_to_file(collections, name = self.write_path, suffix=self.suffix)
             
         return BaseCorpus.from_dict(collections)[0]#, files_names, npy_files_names
-    
-    def majority_voting_entity_level(self, input_collections, THRESHOLD=0.5):
-
-        n_collections = len(input_collections)
-        first_collection = input_collections[0]
-        doc_ids = first_collection.ids()
-
-        for c in input_collections:
-            assert doc_ids == c.ids(), 'The provided Collections do not share exactly the same Documents Identifiers.'
-
-        new_collection = deepcopy(first_collection)
-        new_collection.clear_entities()
-        for di in doc_ids:
-            hash_to_ne = dict()
-            for c in input_collections:
-                for ne in c[di].nes():
-                    ne_hash = hash(ne)
-                    if ne_hash not in hash_to_ne:
-                        hash_to_ne[ne_hash] = {'ne': ne, 'count': 0}
-                    hash_to_ne[ne_hash]['count'] += 1
-
-            ne_count_list = [v for k, v in hash_to_ne.items()]
-            #
-            # Sort the Normalized Entities according to the following three
-            # criteria:
-            # (1) Start offset. Entities that appear first in the text have
-            #     higher priority.
-            # (2) Entity span length. Larger spans have higher priority.
-            # (3) Counts. The number of collections in which the entity exists.
-            #
-            sorted_ne_count_list = sorted(ne_count_list, key=lambda x: x['ne'].start)
-            sorted_ne_count_list = sorted(sorted_ne_count_list, key=lambda x: x['ne'].n_characters, reverse=True)
-            sorted_ne_count_list = sorted(sorted_ne_count_list, key=lambda x: x['count'], reverse=True)
-
-            accepted_entities = list()
-            for ne_count in sorted_ne_count_list:
-                ne = ne_count['ne']
-                count = ne_count['count']
-                ratio = count / n_collections
-                if ratio >= THRESHOLD:
-                    #
-                    # Make sure the entity does not overlap with existing
-                    # entities.
-                    #
-                    overlap = False
-                    for ae in accepted_entities:
-                        if span_overlaps_span(ne.span, ae.span):
-                            overlap = True
-                            break
-                    if not overlap:
-                        accepted_entities.append(ne)
-
-            #
-            # Add the accepted entities to the respective passage.
-            #
-            for ae in accepted_entities:
-                added = False
-                for p in new_collection[di]:
-                    if span_overlaps_span(ae.span, p.span):
-                        p.add_entity(ae)
-                        added = True
-                assert added, 'Entity {} does not overlap with any passage in document {}.'.format(ae, repr(di))
-        return new_collection
 
     def majority_voting(self, base_corpus_ner):
         
@@ -227,7 +165,7 @@ class Annotator(IModule):
                     inputs_collections[group].append(corpus)
                     
             for group, base_corpus_model_predictions in inputs_collections.items():
-                new_collection = self.majority_voting_entity_level(base_corpus_model_predictions)
+                new_collection = majority_voting_entity_level(base_corpus_model_predictions)
                 collections[new_collection.corpus][new_collection.group] = new_collection
             
             if self.write_output:
