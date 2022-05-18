@@ -32,6 +32,17 @@ Finally, execute the `setup.sh` file in order to download and prepare the requir
 $ ./setup.sh
 ```
 
+### Installation using docker
+
+Additionally, we also provide a docker image [talmeidawastaken/biocreative:1.0.0](https://hub.docker.com/r/talmeidawastaken/biocreative) with all the dependencies installed and ready to run, for instance, consider executing:
+
+```
+docker run -it --rm talmeidawastaken/biocreative:1.0.0
+```
+
+Nota that we are using the flag "--rm" so that docker will automaticly clean up the container and remove the file system.
+
+
 ### How to run
 
 By default the pipeline will perform the annotation, normalization and indexing of a given PMC documents or collection of documents following the BioC format, as presented below:
