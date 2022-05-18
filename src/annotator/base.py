@@ -23,6 +23,9 @@ import numpy as np
 def convert_to_numpy(sample):
     return {k:v.numpy() for k,v in sample.items()}
 
+def convert_to_tensor(sample):
+    return {k:tf.convert_to_tensor(v) for k,v in sample.items()}
+
 class Annotator(IModule):
     
     def __init__(self, 
@@ -131,11 +134,11 @@ class Annotator(IModule):
 
                 sequence_decoder.samples_from_batch(_sample)
                 
-                if self.write_tags_output:
-                    samples.append(convert_to_numpy(_sample))
+                # saving the tags predictions
+                samples.append(convert_to_numpy(_sample))
 
-            # save the predicts to be used during ensemble
-            if len(samples)>0:
+            # save the predicts to be used during tag ensemble
+            if self.write_tags_output:
                 npy_name = f'{self.write_path}/{group}{self.suffix}-docs_samples.npy'
                 np.save(npy_name, samples, allow_pickle=True, fix_imports=True)
                 npy_files_names.append(npy_name)
@@ -146,9 +149,9 @@ class Annotator(IModule):
         if self.write_output:
             files_names = write_collections_to_file(collections, name = self.write_path, suffix=self.suffix)
             
-        return BaseCorpus.from_dict(collections)[0]#, files_names, npy_files_names
+        return BaseCorpus.from_dict(collections)[0], samples#, files_names, npy_files_names
 
-    def majority_voting(self, base_corpus_ner):
+    def majority_voting(self, base_corpus, output_base_corpus, output_tags_base_corpus):
         
         if self.write_add_checkpoint_name:
             models_name = [os.path.splitext(os.path.basename(model_name))[0] for model_name in self.model_checkpoint]
@@ -160,8 +163,8 @@ class Annotator(IModule):
             inputs_collections = defaultdict(list)
             collections = defaultdict(dict)
             
-            for base_corpus in base_corpus_ner:
-                for group, corpus in base_corpus:
+            for obc in output_base_corpus:
+                for group, corpus in obc:
                     inputs_collections[group].append(corpus)
                     
             for group, base_corpus_model_predictions in inputs_collections.items():
@@ -170,30 +173,65 @@ class Annotator(IModule):
             
             if self.write_output:
                 write_collections_to_file(collections, name = self.write_path, suffix=self.suffix)
-                    
-            return BaseCorpus.from_dict(collections)[0]
-                
             
         elif self.majority_voting_mode == "tag-level":
             print("Mode: tag-level")
             
             
+            samples = {}
+            name = []
+            for docs_pred in output_tags_base_corpus:
+
+                for i, _sample in enumerate(map(convert_to_tensor, docs_pred)):
+
+                    if i in samples:
+                        _sample["tags_int_pred"] = tf.one_hot(_sample["tags_int_pred"], depth=4) + samples[i]["tags_int_pred"]
+                    else:
+                        _sample["tags_int_pred"] = tf.one_hot(_sample["tags_int_pred"], depth=4)
+
+                    samples[i] = _sample
+            
+            sequence_decoder = SequenceDecoder([base_corpus])
+    
+            number_of_draws = 0
+
+            for i in range(len(samples)):
+                #print(samples[i]["tags_int_pred"])
+                values , _ = tf.math.top_k(samples[i]["tags_int_pred"], 2)
+                number_of_draws += tf.reduce_sum(tf.cast(values[:,:,0] == values[:,:,1], tf.int32)).numpy()
+
+                samples[i]["tags_int_pred"] = tf.argmax(samples[i]["tags_int_pred"], axis=-1, output_type=tf.int32)
+
+                sequence_decoder.samples_from_batch(samples[i])
+
+            print("number of draws", number_of_draws)
+            collections = sequence_decoder.get_collections()
+
+            #print(f"Writting to {_name}")
+            if self.write_output:
+                write_collections_to_file(collections, name = self.write_path, suffix=self.suffix)
+            
         else:
             raise ValueError("Majority voting method can only be entity-level or tag-level")
+        
+        # return the base corpus annotated
+        return BaseCorpus.from_dict(collections)[0]
     
     def transform(self, base_corpus):
         
-        base_corpus_ner = []
+        outputs_base_corpus = []
+        outputs_tags_base_corpus = []
         
         for model_checkpoint in self.model_checkpoint:
-            output_base_corpus = self.single_inference(base_corpus, model_checkpoint)
-            base_corpus_ner.append(output_base_corpus)
+            output_base_corpus, tags_base_corpus = self.single_inference(base_corpus, model_checkpoint)
+            outputs_base_corpus.append(output_base_corpus)
+            outputs_tags_base_corpus.append(tags_base_corpus)
             # reset tf session and call GC
             tf.keras.backend.clear_session()
             gc.collect()
             
         if len(self.model_checkpoint)>1:
             # run ensemble
-            output_base_corpus = self.majority_voting(base_corpus_ner)
+            output_base_corpus = self.majority_voting(base_corpus, outputs_base_corpus, outputs_tags_base_corpus)
         
         return output_base_corpus

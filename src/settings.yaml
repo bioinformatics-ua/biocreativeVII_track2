@@ -8,7 +8,7 @@ Annotator:
     majority_voting_mode: "entity-level" # tag-level
     write_output: True
     # save the predicted tags in order to produce an ensamble run
-    write_tags_output: True
+    write_tags_output: False
     write_path: "outputs/annotator"
     write_add_checkpoint_name: True
     # the contextualized embeddings from the BERT will be cached in disk (by the polus library) in .polus_cache/dataloaders

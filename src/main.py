@@ -80,6 +80,10 @@ if __name__ == "__main__":
     annotator_configs.add_argument('--annotator.write_output', dest='annotator_write_output', \
                                  default=None, \
                                  help='Flag that signals if this module would write the produced annotated files')
+    annotator_configs.add_argument('--annotator.majority_voting_mode', dest='annotator_majority_voting_mode', \
+                                 default=None, \
+                                 help='Mode for the majority_voting_mode by default uses entity-level')
+    
     annotator_configs.add_argument('--annotator.write_path', dest='annotator_write_path', \
                                  type=str, default=None, \
                                  help='Path where to write the model')
