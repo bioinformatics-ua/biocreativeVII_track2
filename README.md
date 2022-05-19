@@ -34,10 +34,10 @@ $ ./setup.sh
 
 ### Installation using docker
 
-Additionally, we also provide a docker image [talmeidawastaken/biocreative:1.0.0](https://hub.docker.com/r/talmeidawastaken/biocreative) with all the dependencies installed and ready to run, for instance, consider executing:
+Additionally, we also provide a docker image [bioinformaticsua/biocreative:1.1.0](https://hub.docker.com/r/bioinformaticsua/biocreative) with all the dependencies installed and ready to run, for instance, consider executing:
 
 ```
-docker run -it talmeidawastaken/biocreative:1.0.0
+docker run -it bioinformaticsua/biocreative:1.1.0
 ```
 
 ### How to run
