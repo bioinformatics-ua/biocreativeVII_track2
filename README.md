@@ -37,11 +37,8 @@ $ ./setup.sh
 Additionally, we also provide a docker image [talmeidawastaken/biocreative:1.0.0](https://hub.docker.com/r/talmeidawastaken/biocreative) with all the dependencies installed and ready to run, for instance, consider executing:
 
 ```
-docker run -it --rm talmeidawastaken/biocreative:1.0.0
+docker run -it talmeidawastaken/biocreative:1.0.0
 ```
-
-Nota that we are using the flag "--rm" so that docker will automaticly clean up the container and remove the file system.
-
 
 ### How to run
 
