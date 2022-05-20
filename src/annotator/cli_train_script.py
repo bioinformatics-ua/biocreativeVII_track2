@@ -13,6 +13,7 @@ import tensorflow_addons as tfa
 
 import glob
 import os
+os.environ["POLUS_JIT"]="false"
 
 # import trainer
 # import metrics MacroF1Score, Accuracy, MacroF1ScoreBI, EntityF1
