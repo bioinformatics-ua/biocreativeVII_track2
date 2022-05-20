@@ -37,10 +37,12 @@ $ ./setup.sh
 Additionally, we also provide a docker image [bioinformaticsua/biocreative:1.1.0](https://hub.docker.com/r/bioinformaticsua/biocreative) with all the dependencies installed and ready to run, for instance, consider executing:
 
 ```
-docker run -it bioinformaticsua/biocreative:1.1.0
+docker run -it --rm bioinformaticsua/biocreative:1.1.0
 ```
 
-### How to run
+Note that by using the flag "--rm" the container and its data will be wiped by the docker
+
+### How to run 
 
 By default the pipeline will perform the annotation, normalization and indexing of a given PMC documents or collection of documents following the BioC format, as presented below:
 
@@ -51,7 +53,7 @@ By default the pipeline will perform the annotation, normalization and indexing 
 	The pipeline will try to download the article with the identifier PMC8524328 and store it under the `datasets` folder, then it will proceed to the annotation, normalization and indexing, outputing the resulting files under the `outputs` folder.
 
 
-- Given a Bio.json file that may contain more that one article:
+- Given a BioC.json file that may contain more that one article:
 	```
 	$ python src/main.py datasets/NLMChem/BC7T2-NLMChem-corpus-train.BioC.json
 	```
@@ -60,7 +62,22 @@ By default the pipeline will perform the annotation, normalization and indexing 
 	$ python src/main.py datasets/NLMChem
 	```
 	Here the pipeline will individually run each of the BioC files found under the given directory.
+
+Furthermore, it is also possible to run each module separatly or combined by specifing the flags `-a`  or `--annotator`, `-n`  or `--normalizer`, `-i`  or `--indexer`, which enable the utilization of its respective module. By default when none is specified the program will use all of the modules. For instance, it is possible to perfrom only annotation by specifing the flag `-a`.  
+	```
+	$ python src/main.py PMC8524328 -a
+	```
     
+Additionaly it is also possible to combine the modules and for instance doing the annotation folowing the normalization step, for that the flags `-a` and `-n` must be specified like so:
+	```
+	$ python src/main.py PMC8524328 -a -n
+	```
+
+The same is also valid if we want to just run the normalizer module followed by the indexing module, the difference is that now the input file must be in BioC format with annotation, which is the type of file that is produced by the annotator module.
+	```
+	$ python src/main.py outputs/annotator/BaseCorpus_BioC_PMC8524328.json -n -i
+	```
+
 Note: It is advisible the availability of a GPU for speeding up the annotation procedure.
 
 ### Documentation
