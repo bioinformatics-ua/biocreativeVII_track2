@@ -1,31 +1,48 @@
+
+# Settings related to the annotator module
 Annotator:
+    # list of trained models that are used for the annotation
     model_checkpoint:
         - "model_checkpoint/legendary-frost-1.cfg"
         - "model_checkpoint/dainty-night-2.cfg"
         - "model_checkpoint/skilled-plant-3.cfg"
         - "model_checkpoint/comfy-wildflower-4.cfg"
         - "model_checkpoint/avid-dew-5.cfg"
+    # ensemble method mode to be used when model_checkpoint has more that one model
     majority_voting_mode: "entity-level" # tag-level
+    # flags that when true it writes to a BioC.json file the resulting annotations
     write_output: True
-    # save the predicted tags in order to produce an ensamble run
+    # flag that when true it writes to a numpy file the tags predicted by the loaded models
     write_tags_output: False
+    # path to the folder where the files are stored
     write_path: "outputs/annotator"
+    # when true appends the model_checkpoint name to the when of the file name
     write_add_checkpoint_name: True
     # the contextualized embeddings from the BERT will be cached in disk (by the polus library) in .polus_cache/dataloaders
+    # this is usefull if the same file may be exectuted several times, if not put it to false to save storage
     cache_context_embeddings: True
-    batch_size: 64
+    # the number of samples that are fed to the model 
+    batch_size: 32
 
+# Settings related to the normalizer module
 Normalizer:
+    # when true it writes to a BioC.json file output of this module
     write_output: True
+    # path to the folder where the files are stored
     write_path: "outputs/normalizer"
+    # when true the rule_based method will be skipped, usefull to directly evaluate the normalization by embeddings module
     skip_rule_based: False
+    # path to the Ab3p tool (used by the rule_based method)
     ab3p_path: "tools/Ab3P/identify_abbr"
+    # if true the corpus_for_expansion normalizations will be directly stored to be latter reused in other contexts (used by the rule_based method)
     dictionary_dataset_augmentation: True
+    # flag that signals the usage of the ab3p tool
     ab3p_abbreviation_expansion: True
     # for adding more mesh dictionaries, edit the utils.dictionaryLoader method with your custom key and logic
     mesh_dictionaries:
         - "MeSH_Dxx"
         - "SCR"
+    # files from which we get direct mapped of normalizations
     corpus_for_expansion:
         - "datasets/NLMChem/BC7T2-NLMChem-corpus-train.BioC.json"
         - "datasets/NLMChem/BC7T2-NLMChem-corpus-dev.BioC.json"
@@ -33,17 +50,23 @@ Normalizer:
         #- "datasets/CDR/BC7T2-CDR-corpus-train.BioC.json"
         #- "datasets/CDR/BC7T2-CDR-corpus-dev.BioC.json"
         #- "datasets/CDR/BC7T2-CDR-corpus-test.BioC.json"
+    # path to the dictionary containing embeddings for each mesh descriptor
     embedding_index: "mesh/full_Dsection_MeSH_dictionary_filteredSCR2021"
 
+# Settings related to the indexer module
 Indexer:
+    # type of the method to be used
     method: 1
     min_occur_captions: 0.22
     min_occur_abstract: 0.1
     min_occur_title: 0.02
     min_occur_concl: 0.1
+    # when true it writes to a BioC.json file output of this module
     write_output: True
+    # path to the folder where the files are stored
     write_path: "outputs/indexer"
 
+# Settings related to the loading of the BioC.json file
 ReadCollectionParams:
     ignore_non_contiguous_entities: False
     ignore_normalization_identifiers: False
