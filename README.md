@@ -37,7 +37,7 @@ $ ./setup.sh
 Additionally, we also provide a GPU-ready docker image [bioinformaticsua/biocreative:1.1.0](https://hub.docker.com/r/bioinformaticsua/biocreative) with all the dependencies installed and ready to run, for instance, consider executing:
 
 ```
-docker run -it --rm bioinformaticsua/biocreative:1.1.0
+docker run -it  --runtime=nvidia --rm bioinformaticsua/biocreative:1.1.0
 ```
 
 Note that by using the flag "--rm" the container and its data will be wiped by the docker
