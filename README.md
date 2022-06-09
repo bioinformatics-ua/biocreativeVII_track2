@@ -109,7 +109,7 @@ Then, assume that the model resulting from the above pre-training has the name `
 $ python cli_train_script.py -from_model pretrain-avid-dew-5.cfg -epoch 20 -gaussian_noise 0.15 -random_augmentation noise -use_crf_mask -use_fulltext -base_lr 0.0001 -batch_size 32 -rnd_seed 1 -train_datasets NLMCHEM -train_w_test -wandb "[Extension-Revision] Biocreative Track2 NER - pretrain CCD(train-dev-test) ft (train-dev-test)"
 ```
 
-We strongly recommend the use of a GPU to train a NER model (see below our [System specifications](#system-specifications)). Also, due to a memory leak present in the `tf.Dataset.shuffle` method, it is beneficial to run the script with the [TCMalloc](https://google.github.io/tcmalloc/overview.html) implementation. These is a brief example of use:
+We strongly recommend the use of a GPU to train a NER model (see below our [System specifications](#system-specifications)). Also, due to a memory leak present in the `tf.data.Dataset.shuffle` method, it is beneficial to run the script with the [TCMalloc](https://google.github.io/tcmalloc/overview.html) implementation. These is a brief example of use:
 
 ```
 $ sudo apt-get install libtcmalloc-minimal4
