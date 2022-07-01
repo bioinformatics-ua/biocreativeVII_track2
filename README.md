@@ -189,14 +189,18 @@ For computational reference, our experiments were performed on a server machine 
 
 ## Reference
 
-Please cite our paper (unpublished, accepted), if you use this code in your work:
+Please cite our paper if you use this code in your work:
 
 ```
 @article{almeida2022a,
   author    = {Almeida, Tiago and Antunes, Rui and Silva, Jo{\~a}o F. and Almeida, Jo{\~a}o R. and Matos, S{\'e}rgio},
   journal   = {Database},
+  month     = jul,
+  number    = {baac047},
   publisher = {{Oxford University Press}},
   title     = {Chemical identification and indexing in {{PubMed}} full-text articles using deep learning and heuristics},
+  url       = {https://doi.org/10.1093/database/baac047},
+  volume    = {2022},
   year      = {2022},
 }
 ```
