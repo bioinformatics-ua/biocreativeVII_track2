@@ -1,9 +1,9 @@
 # BioCreative VII — Track 2 (NLM-Chem)
 
 
-### Full-text chemical identification and indexing in PubMed articles
+### [Chemical identification and indexing in PubMed full-text articles using deep learning and heuristics](https://doi.org/10.1093/database/baac047)
 
-[This repository](https://github.com/bioinformatics-ua/biocreativeVII_track2) presents our system for the [NLM-Chem track](https://biocreative.bioinformatics.udel.edu/tasks/biocreative-vii/track-2/).
+This repository presents [our system](https://doi.org/10.1093/database/baac047) for the [NLM-Chem track](https://biocreative.bioinformatics.udel.edu/tasks/biocreative-vii/track-2/).
 
 
 ## Standard installation
