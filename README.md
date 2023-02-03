@@ -167,7 +167,7 @@ Furthermore, all the model parameters in the `src/settings.yaml` file can be ove
 
 ### Note: How the MeSH files are generated.
 
-Since we decided to make the files with the MeSH inforamtion already available in the `./setup.sh`, the main branch of this repository does not include the script for generating them. However, you can find the script in the `joaofsilva-dev` branch under the name [MeSHfiltering.py](https://github.com/bioinformatics-ua/biocreativeVII_track2/blob/joaofsilva-dev/src/MeSHfiltering.py). For further details, please refer to this [issue thread](https://github.com/bioinformatics-ua/biocreativeVII_track2/issues/7)
+Since we decided to make the files with the MeSH information already available in the `./setup.sh`, the main branch of this repository does not include the script for generating them. However, you can find the script in the `joaofsilva-dev` branch under the name [MeSHfiltering.py](https://github.com/bioinformatics-ua/biocreativeVII_track2/blob/joaofsilva-dev/src/MeSHfiltering.py). For further details, please refer to this [issue thread](https://github.com/bioinformatics-ua/biocreativeVII_track2/issues/7).
 
 ## System specifications
 
